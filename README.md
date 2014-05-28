@@ -1,6 +1,6 @@
-cortical.io-Public
-===================
-Welcome to the cortical.io-Public repository!
+cortical.io
+===========
+Welcome to the cortical.io Public repository!
 
 This is the public repository of [cortical.io](http://www.cortical.io/).
 In the near future you will find the following items on this repository:

@@ -19,7 +19,7 @@ For more information on this amazing event, please visit [numenta.org](http://nu
 License
 -------
 
-Copyright 2014 CEPT Systems GmbH.
+Copyright 2014 cortical.io GmbH.
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,

@@ -16,8 +16,8 @@ including jQuery.
 ## Usage
 
 The plugin can be invoked on a target DIV element after selecting it with jQuery. The element will then be transformed
-into a fingerprint editor, with the configured options applied to it. The fingerprintSize option has no default value
- and must be set manually corresponding with the size of cortical.io Retina being used.
+into a fingerprint renderer, with the configured options applied to it. The `fingerprintSize` option has no default
+value and must be set manually corresponding with the size of cortical.io Retina being used.
 
 ```javascript
 var positions = ... // perform cortical.io API lookup to retrieve positions array
@@ -25,12 +25,12 @@ $("#target-div").fingerprintRenderer({
     scale: 3,
     positions: positions,
     fingerprintSize: 128
-})
+});
 ```
 
 ## Options
 
-Options are passed to the plugin as an object on invocation of the fingerprintRenderer method. The
+Options are passed to the plugin as an object on invocation of the `fingerprintRenderer` method. The
 available options are:
 
 <table class="table table-bordered table-striped">
@@ -129,10 +129,11 @@ $.fn.fingerprintRenderer.defaults = $.extend({}, $.fn.fingerprintRenderer.defaul
 });
 ```
 
-Once set, calls to fingerprintRenderer would use the newly configured defaults:
+Once set, calls to `fingerprintRenderer` use the newly configured defaults, so even the otherwise required option
+`fingerprintSize` must no longer be set manually:
 
 ```javascript
-$("#target-div").fingerprintRenderer({positions: positions})
+$("#target-div").fingerprintRenderer({positions: positions});
 ```
 
 

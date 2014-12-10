@@ -1,7 +1,10 @@
 cortical.io UI-Widgets
 ======================
 
+## Retina Fingerprint Renderer
 
+Configurable HTML5 canvas renderer for Retina fingerprints to be used in conjunction with the [cortical.io API]
+(http://api.cortical.io/) and jQuery. More info, installation and usage instructions [here](https://github.com/cortical-io/Public/tree/master/UI-Widgets/Fingerprint-Renderer-jQuery-Plugin).
 
 License
 -------

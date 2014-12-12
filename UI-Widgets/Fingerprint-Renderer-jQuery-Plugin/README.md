@@ -56,6 +56,15 @@ available options are:
         	<td>Color used for active bits in the fingerprint.</td>
         </tr>
         <tr>
+        	<td>clusters</td>
+            <td>Array</td>
+            <td>[]</td>
+            <td>Collection of clusters to render. Each cluster is defined as an object with the following
+            properties:
+            	{x: Number, y: Number, radius: Number, color: String, strokeWidth: Number}
+            </td>
+        </tr>
+        <tr>
         	<td>containerBorder</td>
             <td>CSS border property value</td>
             <td>solid 2px #EDEDED</td>

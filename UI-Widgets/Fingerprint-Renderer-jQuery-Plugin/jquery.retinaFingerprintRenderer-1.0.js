@@ -59,6 +59,10 @@
         var backgroundColor = options.backgroundColor;
         var bitColor = options.bitColor;
         var clusters = options.clusters;
+        var clusterBorderColor = options.clusterBorderColor;
+        var clusterBorderStrokeWidth = options.clusterBorderStrokeWidth;
+        var clusterFillColor = options.clusterFillColor;
+        var clusterFillOpacity = options.clusterFillOpacity;
         var containerBorder = options.containerBorder;
         var fingerprintSize = options.fingerprintSize;
         var gridColor = options.gridColor;
@@ -267,29 +271,15 @@
                 clusterParameters.y = clusterParameters.pair.second;
             }
 
-            // Add default values if missing
-            if (typeof clusterParameters.strokeWidth == "undefined") {
-                clusterParameters.strokeWidth = $.fn.fingerprintRenderer.defaults.clusterBorderStrokeWidth;
-            }
-            if (typeof clusterParameters.color == "undefined") {
-                clusterParameters.color = $.fn.fingerprintRenderer.defaults.clusterBorderColor;
-            }
-            if (typeof clusterParameters.fillColor == "undefined") {
-                clusterParameters.fillColor = $.fn.fingerprintRenderer.defaults.clusterFillColor;
-            }
-            if (typeof clusterParameters.fillOpacity == "undefined") {
-                clusterParameters.fillOpacity = $.fn.fingerprintRenderer.defaults.clusterFillOpacity;
-            }
-
             var clusterFill = new createjs.Shape();
-            clusterFill.graphics.beginFill(clusterParameters.fillColor).drawCircle(0, 0, clusterParameters.radius * scale);
-            clusterFill.alpha = clusterParameters.fillOpacity;
+            clusterFill.graphics.beginFill(clusterFillColor).drawCircle(0, 0, clusterParameters.radius * scale);
+            clusterFill.alpha = clusterFillOpacity;
             clusterFill.x = clusterParameters.x * scale;
             clusterFill.y = clusterParameters.y * scale;
             stage.addChild(clusterFill);
 
             var clusterBorder = new createjs.Shape();
-            clusterBorder.graphics.setStrokeStyle(clusterParameters.strokeWidth).beginStroke(clusterParameters.color).drawCircle(0, 0, clusterParameters.radius * scale);
+            clusterBorder.graphics.setStrokeStyle(clusterBorderStrokeWidth).beginStroke(clusterBorderColor).drawCircle(0, 0, clusterParameters.radius * scale);
             clusterBorder.x = clusterParameters.x * scale;
             clusterBorder.y = clusterParameters.y * scale;
             stage.addChild(clusterBorder);
@@ -358,10 +348,10 @@
         backgroundColor: "#FFFFFF",
         bitColor: "#005570",
         clusters: [],
-        clusterBorderColor: "#EDEDED",
+        clusterBorderColor: "#0000A0",
         clusterBorderStrokeWidth: "2px",
-        clusterFillColor: "blue",
-        clusterFillOpacity: 0.5,
+        clusterFillColor: "#0000FF",
+        clusterFillOpacity: 0.2,
         containerBorder: "solid 2px #EDEDED",
         fingerprintSize: undefined,
         gridColor: "#EDEDED",

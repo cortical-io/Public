@@ -41,6 +41,12 @@
          */
         var CLUSTER_CANVAS_CSS_CLASS = "cluster-canvas";
 
+        /**
+         * Minimum scale factor required to render a grid
+         * @type {number}
+         */
+        var MIN_SCALE_FOR_GRID = 2;
+
         // Add all default options
         options = $.extend({}, $.fn.fingerprintRenderer.defaults, options);
 
@@ -91,7 +97,11 @@
             setupDom($containerElement);
             setupRenderer($containerElement);
             if (gridEnabled) {
-                initializeGrid($containerElement);
+                if (scale <= MIN_SCALE_FOR_GRID && console.log) {
+                    console.log("Grid cannot be drawn unless a scale factor larger than " + MIN_SCALE_FOR_GRID + " is used. Current scale factor is " + scale);
+                } else {
+                    initializeGrid($containerElement);
+                }
             }
             if (clusters.length > 0) {
                 initializeClusterCanvas($containerElement);
@@ -114,7 +124,7 @@
 
             // Create canvas elements
             $containerElement.append($('<canvas>', {class: FINGERPRINT_CANVAS_CSS_CLASS}));
-            if (gridEnabled) {
+            if (gridEnabled && scale > MIN_SCALE_FOR_GRID) {
                 $containerElement.append($('<canvas>', {class: GRID_CANVAS_CSS_CLASS}));
             }
             if (clusters.length > 0) {
@@ -234,7 +244,7 @@
 
             $.each(positions, function (index, entry) {
                 var coordinates = getCoordinateFromPosition(entry);
-                fingerprint.graphics.beginFill(color).drawRect(coordinates.x * scale, coordinates.y * scale, Math.max((scale - 1), 1), Math.max((scale - 1), 1));
+                fingerprint.graphics.beginFill(color).drawRect(coordinates.x * scale, coordinates.y * scale, scale, scale);
                 points[coordinates.x][coordinates.y] = 1;
             });
 
@@ -248,11 +258,42 @@
          * @param cluster
          */
         function renderCluster(stage, cluster) {
-            var circle = new createjs.Shape();
-            circle.graphics.setStrokeStyle(cluster.strokeWidth).beginStroke(cluster.color).drawCircle(0, 0, cluster.radius * scale);
-            circle.x = cluster.x * scale;
-            circle.y = cluster.y * scale;
-            stage.addChild(circle);
+
+            var clusterParameters = jQuery.extend(true, {}, cluster);
+
+            // Check for cluster objects in the form returned by the cortical.io API
+            if (typeof clusterParameters.pair != "undefined") {
+                clusterParameters.x = clusterParameters.pair.first;
+                clusterParameters.y = clusterParameters.pair.second;
+            }
+
+            // Add default values if missing
+            if (typeof clusterParameters.strokeWidth == "undefined") {
+                clusterParameters.strokeWidth = $.fn.fingerprintRenderer.defaults.clusterBorderStrokeWidth;
+            }
+            if (typeof clusterParameters.color == "undefined") {
+                clusterParameters.color = $.fn.fingerprintRenderer.defaults.clusterBorderColor;
+            }
+            if (typeof clusterParameters.fillColor == "undefined") {
+                clusterParameters.fillColor = $.fn.fingerprintRenderer.defaults.clusterFillColor;
+            }
+            if (typeof clusterParameters.fillOpacity == "undefined") {
+                clusterParameters.fillOpacity = $.fn.fingerprintRenderer.defaults.clusterFillOpacity;
+            }
+
+            var clusterFill = new createjs.Shape();
+            clusterFill.graphics.beginFill(clusterParameters.fillColor).drawCircle(0, 0, clusterParameters.radius * scale);
+            clusterFill.alpha = clusterParameters.fillOpacity;
+            clusterFill.x = clusterParameters.x * scale;
+            clusterFill.y = clusterParameters.y * scale;
+            stage.addChild(clusterFill);
+
+            var clusterBorder = new createjs.Shape();
+            clusterBorder.graphics.setStrokeStyle(clusterParameters.strokeWidth).beginStroke(clusterParameters.color).drawCircle(0, 0, clusterParameters.radius * scale);
+            clusterBorder.x = clusterParameters.x * scale;
+            clusterBorder.y = clusterParameters.y * scale;
+            stage.addChild(clusterBorder);
+
             stage.update();
         }
 
@@ -317,6 +358,10 @@
         backgroundColor: "#FFFFFF",
         bitColor: "#005570",
         clusters: [],
+        clusterBorderColor: "#EDEDED",
+        clusterBorderStrokeWidth: "2px",
+        clusterFillColor: "blue",
+        clusterFillOpacity: 0.5,
         containerBorder: "solid 2px #EDEDED",
         fingerprintSize: undefined,
         gridColor: "#EDEDED",

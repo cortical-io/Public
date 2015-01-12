@@ -347,18 +347,16 @@
 
             // Add listeners
             clusterFill.on("click", function (evt) {
-                cluster.selected = false;
                 clusterClickCallback(cluster);
                 if (cluster.selected) {
                     renderSelectedCluster(this);
+                } else {
+                    clusterSelectionStage.removeAllChildren();
+                    clusterSelectionStage.update();
                 }
             });
             clusterFill.on("mouseover", function (evt) {
-                cluster.selected = false;
                 clusterMouseoverCallback(cluster);
-                if (cluster.selected) {
-                    renderSelectedCluster(this);
-                }
             });
         }
 

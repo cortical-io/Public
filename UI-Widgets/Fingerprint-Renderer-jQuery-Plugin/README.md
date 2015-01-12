@@ -15,9 +15,7 @@ including jQuery.
 
 ## Usage
 
-The plugin can be invoked on a target DIV element after selecting it with jQuery. The element will then be transformed
-into a fingerprint renderer, with the configured options applied to it. The `fingerprintSize` option has no default
-value and must be set manually corresponding with the size of cortical.io Retina being used.
+The plugin can be invoked on a target DIV element after selecting it with jQuery. The element will then be transformed into a fingerprint renderer with the configured options applied to it. The `fingerprintSize` option has no default value and must be set manually corresponding with the size of the cortical.io Retina being used.
 
 ```javascript
 var positions = ... // perform cortical.io API lookup to retrieve positions array
@@ -43,13 +41,13 @@ available options are:
 		</tr>
 	</thead>
 	<tbody>
-		<tr>
-			<td>backgroundColor</td>
-			<td>CSS color value</td>
-			<td>#FFFFFF</td>
-			<td>Background color of the fingerprint (if not transparent).</td>
-		</tr>
-		<tr>
+	<tr>
+		<td>backgroundColor</td>
+		<td>CSS color value</td>
+		<td>#FFFFFF</td>
+		<td>Background color of the fingerprint (if not transparent).</td>
+	</tr>
+	<tr>
         	<td>bitColor</td>
         	<td>CSS color value</td>
         	<td>#005570</td>
@@ -66,9 +64,9 @@ available options are:
         </tr>
         <tr>
         	<td>containerBorder</td>
-            <td>CSS border property value</td>
-            <td>solid 2px #EDEDED</td>
-            <td>CSS border property to be applied to the fingerprint container DIV.</td>
+            	<td>CSS border property value</td>
+            	<td>solid 2px #EDEDED</td>
+            	<td>CSS border property to be applied to the fingerprint container DIV.</td>
         </tr>
     	<tr>
         	<td>fingerprintSize</td>
@@ -79,20 +77,20 @@ available options are:
         <tr>
         	<td>gridColor</td>
         	<td>CSS color value</td>
-            <td>#EDEDED</td>
-            <td>Color of the grid overlay rendered over the fingerprint (if enabled).</td>
+            	<td>#EDEDED</td>
+            	<td>Color of the grid overlay rendered over the fingerprint (if enabled).</td>
         </tr>
         <tr>
         	<td>gridEnabled</td>
         	<td>Boolean</td>
-            <td>true</td>
-            <td>Flag indicating if the grid overlay should be rendered.</td>
+        	<td>true</td>
+        	<td>Flag indicating if the grid overlay should be rendered.</td>
         </tr>
         <tr>
         	<td>mouseoverCallback</td>
         	<td>function</td>
-            <td>undefined</td>
-            <td>Callback function to be called as the user moves their cursor over the fingerprint. The callback
+        	<td>undefined</td>
+        	<td>Callback function to be called as the user moves their cursor over the fingerprint. The callback
             receives a data parameter, containing the current x/y coordinates and Retina position of the
             mouse pointer. This can be used to make additional API calls to further inspect particular positions of
             the rendered fingerprint.</td>

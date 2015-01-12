@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="jquery.retinaFingerprintRenderer-1.0.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            var text = ["The National Aeronautics and Space Administration (NASA) is the United States government agency that is responsible for the civilian space program as well as for aeronautics and aerospace research. President Dwight D. Eisenhower established the National Aeronautics and Space Administration (NASA) in 1958 with a distinctly civilian (rather than military) orientation encouraging peaceful applications in space science. The National Aeronautics and Space Act was passed on July 29, 1958, disestablishing NASA's predecessor, the National Advisory Committee for Aeronautics (NACA)."];
+            text = JSON.stringify(convertArrayToBulk(text, "text"));
+
+            $.ajax({
+                url: "http://localhost:8080/rest/text/bulk/clusters?retina_name=en_associative&sparsity=1.0&min_radius=1.0",
+                headers: {
+                    'Accept': 'application/json', 'Content-Type': 'application/json'
+                    // 'api-key': options.apiKey
+                },
+                type: "POST",
+                data: text,
+                datatype: "json"
+            }).then(function (data) {
+
+                var positions = data[0].positions;
+                var clusters = [];
+                var colors = ["red", "blue", "orange", "green", "brown", "cyan", "darkblue", "darkkhaki", "darkorange", "purple", "black", "pink"];
+
+                var clusterCount = 0;
+                $.each(data[0].clusters, function (index, cluster) {
+
+                    var clusterToRender = {
+                        x: cluster.pair.first,
+                        y: cluster.pair.second,
+                        radius: cluster.radius,
+                        color: colors[0],
+                        strokeWidth: 2
+                    };
+                    var color = colors.shift();
+                    colors.push(color);
+                    clusters.push(clusterToRender);
+                    clusterCount++;
+
+                });
+
+                $("#test").fingerprintRenderer({
+                    // bitColor: "red",
+                    scale: 5, positions: positions, fingerprintSize: 128, mouseoverCallback: function (data) {
+                        // TODO console.log(data)
+                    }, clusters: clusters
+                });
+            });
+        });
+
+        function convertArrayToBulk(data, label) {
+            var bulk = [];
+            $.each(data, function (index, entry) {
+                var object = {};
+                object[label] = entry;
+                bulk.push(object);
+            });
+            return bulk;
+        }
+    </script>
+
+</head>
+<body>
+<div id="test"></div>
+</body>
+</html>

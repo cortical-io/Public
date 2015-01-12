@@ -36,10 +36,28 @@
         var GRID_CANVAS_CSS_CLASS = "grid-canvas";
 
         /**
-         * Name of the CSS class applied to the cluster canvas
+         * Name of the CSS class applied to the cluster container DIV
          * @type {string}
          */
-        var CLUSTER_CANVAS_CSS_CLASS = "cluster-canvas";
+        var CLUSTER_CONTAINER_CSS_CLASS = "clusters";
+
+        /**
+         * Name of the CSS class applied to the cluster fill canvas
+         * @type {string}
+         */
+        var CLUSTER_FILL_CANVAS_CSS_CLASS = "cluster-fills";
+
+        /**
+         * Name of the CSS class applied to the cluster border canvas
+         * @type {string}
+         */
+        var CLUSTER_BORDER_CANVAS_CSS_CLASS = "cluster-borders";
+
+        /**
+         * Name of the CSS class applied to the cluster selection canvas
+         * @type {string}
+         */
+        var CLUSTER_SELECTION_CANVAS_CSS_CLASS = "cluster-selection";
 
         /**
          * Minimum scale factor required to render a grid
@@ -60,9 +78,13 @@
         var bitColor = options.bitColor;
         var clusters = options.clusters;
         var clusterBorderColor = options.clusterBorderColor;
+        var clusterBorderColorSelected = options.clusterBorderColorSelected;
         var clusterBorderStrokeWidth = options.clusterBorderStrokeWidth;
         var clusterFillColor = options.clusterFillColor;
+        var clusterFillColorSelected = options.clusterFillColorSelected;
         var clusterFillOpacity = options.clusterFillOpacity;
+        var clusterClickCallback = options.clusterClickCallback;
+        var clusterMouseoverCallback = options.clusterMouseoverCallback;
         var containerBorder = options.containerBorder;
         var fingerprintSize = options.fingerprintSize;
         var gridColor = options.gridColor;
@@ -108,7 +130,7 @@
                 }
             }
             if (clusters.length > 0) {
-                initializeClusterCanvas($containerElement);
+                initializeClusterCanvases($containerElement);
             }
         }
 
@@ -132,7 +154,11 @@
                 $containerElement.append($('<canvas>', {class: GRID_CANVAS_CSS_CLASS}));
             }
             if (clusters.length > 0) {
-                $containerElement.append($('<canvas>', {class: CLUSTER_CANVAS_CSS_CLASS}));
+                var $clusterContainer = $('<div>', {class: CLUSTER_CONTAINER_CSS_CLASS});
+                $containerElement.append($clusterContainer);
+                $clusterContainer.append($('<canvas>', {class: CLUSTER_FILL_CANVAS_CSS_CLASS}));
+                $clusterContainer.append($('<canvas>', {class: CLUSTER_BORDER_CANVAS_CSS_CLASS}));
+                $clusterContainer.append($('<canvas>', {class: CLUSTER_SELECTION_CANVAS_CSS_CLASS}));
             }
 
             // Define class for container subelements
@@ -145,8 +171,9 @@
                 "display": "block"
             };
 
-            // Apply to container subelements
-            $.each($containerElement.children(), function (index, element) {
+            // Apply to all container subelements
+            var $subElements = $containerElement.find("div, canvas");
+            $.each($subElements, function (index, element) {
                 $(element).css(canvasClass);
             });
         }
@@ -215,14 +242,29 @@
             stage.update();
         }
 
-        function initializeClusterCanvas($containerElement) {
-            var clusterElement = $("." + CLUSTER_CANVAS_CSS_CLASS, $containerElement).get(0);
-            var stage = initializeStageFromCanvas(clusterElement);
+        function initializeClusterCanvases($containerElement) {
+            var clusterFillElement = $("." + CLUSTER_FILL_CANVAS_CSS_CLASS, $containerElement);
+            clusterFillElement.css({"opacity": clusterFillOpacity});
+            var clusterFillStage = initializeStageFromCanvas(clusterFillElement.get(0));
+            clusterFillStage.enableMouseOver(20);
+
+            var clusterBorderElement = $("." + CLUSTER_BORDER_CANVAS_CSS_CLASS, $containerElement);
+            clusterBorderElement.css({"pointer-events": "none"});
+            var clusterBorderStage = initializeStageFromCanvas(clusterBorderElement.get(0));
+
+            var clusterSelectionElement = $("." + CLUSTER_SELECTION_CANVAS_CSS_CLASS, $containerElement);
+            clusterSelectionElement.css({"pointer-events": "none"});
+            var clusterSelectionStage = initializeStageFromCanvas(clusterSelectionElement.get(0));
+
+            // Sort by radius size to ensure large clusters are rendered first so they do not cover smaller ones
+            sortClusters(clusters, "radius", false);
 
             // Render all clusters
             $.each(clusters, function (index, cluster) {
-                renderCluster(stage, cluster)
+                renderCluster(clusterFillStage, clusterBorderStage, clusterSelectionStage, cluster)
             });
+            clusterFillStage.update();
+            clusterBorderStage.update();
         }
 
         /**
@@ -257,11 +299,12 @@
         }
 
         /**
-         * Renders a cluster to a given stage as configured in the cluster object
-         * @param stage
+         * Renders a given cluster to the corresponding stages
+         * @param clusterFillStage
+         * @param clusterBorderStage
          * @param cluster
          */
-        function renderCluster(stage, cluster) {
+        function renderCluster(clusterFillStage, clusterBorderStage, clusterSelectionStage, cluster) {
 
             var clusterParameters = jQuery.extend(true, {}, cluster);
 
@@ -271,20 +314,52 @@
                 clusterParameters.y = clusterParameters.pair.second;
             }
 
-            var clusterFill = new createjs.Shape();
-            clusterFill.graphics.beginFill(clusterFillColor).drawCircle(0, 0, clusterParameters.radius * scale);
-            clusterFill.alpha = clusterFillOpacity;
-            clusterFill.x = clusterParameters.x * scale;
-            clusterFill.y = clusterParameters.y * scale;
-            stage.addChild(clusterFill);
-
             var clusterBorder = new createjs.Shape();
             clusterBorder.graphics.setStrokeStyle(clusterBorderStrokeWidth).beginStroke(clusterBorderColor).drawCircle(0, 0, clusterParameters.radius * scale);
             clusterBorder.x = clusterParameters.x * scale;
             clusterBorder.y = clusterParameters.y * scale;
-            stage.addChild(clusterBorder);
+            clusterBorderStage.addChild(clusterBorder);
 
-            stage.update();
+            var clusterFill = new createjs.Shape();
+            clusterFill.graphics.beginFill(clusterFillColor).drawCircle(0, 0, clusterParameters.radius * scale);
+            clusterFill.x = clusterParameters.x * scale;
+            clusterFill.y = clusterParameters.y * scale;
+            clusterFillStage.addChild(clusterFill);
+
+            var renderSelectedCluster = function (cluster) {
+                clusterSelectionStage.removeAllChildren();
+
+                var clusterBorder = new createjs.Shape();
+                clusterBorder.graphics.setStrokeStyle(clusterBorderStrokeWidth).beginStroke(clusterBorderColorSelected).drawCircle(0, 0, clusterParameters.radius * scale);
+                clusterBorder.x = clusterParameters.x * scale;
+                clusterBorder.y = clusterParameters.y * scale;
+                clusterSelectionStage.addChild(clusterBorder);
+
+                var clusterFill = new createjs.Shape();
+                clusterFill.graphics.beginFill(clusterFillColorSelected).drawCircle(0, 0, clusterParameters.radius * scale);
+                clusterFill.x = clusterParameters.x * scale;
+                clusterFill.y = clusterParameters.y * scale;
+                clusterFill.alpha = clusterFillOpacity;
+                clusterSelectionStage.addChild(clusterFill);
+
+                clusterSelectionStage.update();
+            };
+
+            // Add listeners
+            clusterFill.on("click", function (evt) {
+                cluster.selected = false;
+                clusterClickCallback(cluster);
+                if (cluster.selected) {
+                    renderSelectedCluster(this);
+                }
+            });
+            clusterFill.on("mouseover", function (evt) {
+                cluster.selected = false;
+                clusterMouseoverCallback(cluster);
+                if (cluster.selected) {
+                    renderSelectedCluster(this);
+                }
+            });
         }
 
         /**
@@ -332,6 +407,12 @@
             }
         }
 
+        function sortClusters(clusters, criteria, ascending) {
+            clusters.sort(function (a, b) {
+                return (ascending ? a[criteria] - b[criteria] : b[criteria] - a[criteria]);
+            });
+        }
+
         return this.each(function () {
             if (!$(this).is("div")) {
                 throw "fingerprintRenderer is only applicable to DIV elements";
@@ -346,12 +427,16 @@
      */
     $.fn.fingerprintRenderer.defaults = {
         backgroundColor: "#FFFFFF",
-        bitColor: "#005570",
+        bitColor: "#333333",
         clusters: [],
-        clusterBorderColor: "#0000A0",
-        clusterBorderStrokeWidth: "2px",
-        clusterFillColor: "#0000FF",
+        clusterBorderColor: "#00CCF3",
+        clusterBorderColorSelected: "#008199",
+        clusterBorderStrokeWidth: 3,
+        clusterFillColor: "#00CCF3",
+        clusterFillColorSelected: "#008199",
         clusterFillOpacity: 0.2,
+        clusterClickCallback: $.noop,
+        clusterMouseoverCallback: $.noop,
         containerBorder: "solid 2px #EDEDED",
         fingerprintSize: undefined,
         gridColor: "#EDEDED",

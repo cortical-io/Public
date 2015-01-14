@@ -27,7 +27,7 @@
          * Name of the CSS class applied to the fingerprint canvas
          * @type {string}
          */
-        var FINGERPRINT_CANVAS_CSS_CLASS = "fingerprint-canvas";
+        var FINGERPRINT_CANVAS_CSS_CLASS = "fingerprint";
 
         /**
          * Name of the CSS class applied to the grid canvas
@@ -302,6 +302,7 @@
          * Renders a given cluster to the corresponding stages
          * @param clusterFillStage
          * @param clusterBorderStage
+         * @param clusterSelectionStage
          * @param cluster
          */
         function renderCluster(clusterFillStage, clusterBorderStage, clusterSelectionStage, cluster) {
@@ -345,18 +346,23 @@
                 clusterSelectionStage.update();
             };
 
-            // Add listeners
-            clusterFill.on("click", function (evt) {
-                clusterClickCallback(cluster);
+            var clusterListener = function () {
                 if (cluster.selected) {
                     renderSelectedCluster(this);
                 } else {
                     clusterSelectionStage.removeAllChildren();
                     clusterSelectionStage.update();
                 }
+            };
+
+            // Add listeners
+            clusterFill.on("click", function (evt) {
+                clusterClickCallback(cluster);
+                clusterListener();
             });
             clusterFill.on("mouseover", function (evt) {
                 clusterMouseoverCallback(cluster);
+                clusterListener();
             });
         }
 
@@ -439,7 +445,7 @@
         fingerprintSize: undefined,
         gridColor: "#EDEDED",
         gridEnabled: true,
-        mouseoverCallback: undefined,
+        mouseoverCallback: $.noop,
         positions: [],
         scale: 1,
         transparent: false

@@ -6,7 +6,6 @@ This is the public repository of [cortical.io](http://www.cortical.io/).
 You will find the following items on this repository:
 
 <UL>
-<LI><B>Client-SDK:</B> Language bindings for Java, Javascript, Python, etc.</LI>
 <LI><B>UI-Widgets:</B> Embeddable user interface components to adapt and use in your applications.</LI>
 </UL>
 

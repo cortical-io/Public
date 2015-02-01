@@ -86,6 +86,8 @@
         var clusterClickCallback = options.clusterClickCallback;
         var clusterMouseoverCallback = options.clusterMouseoverCallback;
         var containerBorder = options.containerBorder;
+        var fadeInTime = options.fadeInTime;
+        var fadeOutTime = options.fadeOutTime;
         var fingerprintSize = options.fingerprintSize;
         var gridColor = options.gridColor;
         var gridEnabled = options.gridEnabled;
@@ -94,8 +96,8 @@
         var scale = options.scale;
         var transparent = options.transparent;
 
-        // Reduce fingerprint sizes by 1 pixel if scaled above 1
-        var size = (fingerprintSize * scale) - ((scale > 1) ? 1 : 0);
+        // Set total size of fingerprint
+        var size = (fingerprintSize * scale);
 
         /**
          * Internal fingerprint representation
@@ -119,18 +121,31 @@
          * @param $containerElement
          */
         function createFingerprintRenderer($containerElement) {
-            // TODO check if already set up
-            setupDom($containerElement);
-            setupRenderer($containerElement);
-            if (gridEnabled) {
-                if (scale <= MIN_SCALE_FOR_GRID && console.log) {
-                    console.log("Grid cannot be drawn unless a scale factor larger than " + MIN_SCALE_FOR_GRID + " is used. Current scale factor is " + scale);
-                } else {
-                    initializeGrid($containerElement);
-                }
+
+            // Check if DOM elements have already been set up
+            var fingerprintCanvas = $containerElement.find("." + FINGERPRINT_CANVAS_CSS_CLASS);
+            if (fingerprintCanvas.length == 0) {
+                setupDom($containerElement);
             }
-            if (clusters.length > 0) {
-                initializeClusterCanvases($containerElement);
+
+            var render = function () {
+                setupRenderer($containerElement);
+                if (gridEnabled) {
+                    if (scale <= MIN_SCALE_FOR_GRID && console.log) {
+                        console.log("Grid cannot be drawn unless a scale factor larger than " + MIN_SCALE_FOR_GRID + " is used. Current scale factor is " + scale);
+                    } else {
+                        initializeGrid($containerElement);
+                    }
+                }
+                if (clusters.length > 0) {
+                    initializeClusterCanvases($containerElement);
+                }
+            };
+
+            if (fadeOutTime > 0 && fingerprintCanvas.length > 0) {
+                fingerprintCanvas.fadeOut(fadeOutTime, render);
+            } else {
+                render();
             }
         }
 
@@ -187,7 +202,7 @@
             if (typeof mouseoverCallback != "undefined") {
                 stage.addEventListener("stagemousemove", mouseMove);
             }
-            renderFingerprint(fingerprint, positions, bitColor);
+            renderFingerprint($containerElement, fingerprint, positions, bitColor);
             stage.update();
         }
 
@@ -256,7 +271,7 @@
             clusterSelectionElement.css({"pointer-events": "none"});
             var clusterSelectionStage = initializeStageFromCanvas(clusterSelectionElement.get(0));
 
-            // Sort by radius size to ensure large clusters are rendered first so they do not cover smaller ones
+            // Sort by radius size to ensure large clusters are rendered first (so they do not cover smaller ones)
             sortClusters(clusters, "radius", false);
 
             // Render all clusters
@@ -269,11 +284,18 @@
 
         /**
          * Renders a fingerprint to the canvas from a positions array
+         * @param $containerElement
          * @param fingerprint
          * @param positions
          * @param color
          */
-        function renderFingerprint(fingerprint, positions, color) {
+        function renderFingerprint($containerElement, fingerprint, positions, color) {
+
+            // Check if the fingerprint should be faded in
+            var fingerprintCanvas = $containerElement.find("." + FINGERPRINT_CANVAS_CSS_CLASS);
+            if (fadeInTime > 0) {
+                fingerprintCanvas.css({"display": "none"});
+            }
 
             resetPoints(points);
 
@@ -296,6 +318,8 @@
 
             fingerprint.parent.updateCache('source-overlay');
             fingerprint.graphics.clear();
+
+            fingerprintCanvas.fadeIn(fadeInTime);
         }
 
         /**
@@ -442,6 +466,8 @@
         clusterClickCallback: $.noop,
         clusterMouseoverCallback: $.noop,
         containerBorder: "solid 2px #EDEDED",
+        fadeInTime: 0,
+        fadeOutTime: 0,
         fingerprintSize: undefined,
         gridColor: "#EDEDED",
         gridEnabled: true,

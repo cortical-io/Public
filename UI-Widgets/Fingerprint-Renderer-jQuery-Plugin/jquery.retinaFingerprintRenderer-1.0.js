@@ -199,7 +199,7 @@
          */
         function setupRenderer($containerElement) {
             var stage = initializeFingerprintCanvas($("." + FINGERPRINT_CANVAS_CSS_CLASS, $containerElement).get(0), points, fingerprint);
-            if (typeof mouseoverCallback != "undefined") {
+            if (typeof mouseoverCallback != "undefined" && mouseoverCallback != $.noop) {
                 stage.addEventListener("stagemousemove", mouseMove);
             }
             renderFingerprint($containerElement, fingerprint, positions, bitColor);
@@ -429,7 +429,9 @@
         function mouseMove(event) {
             var coordinates = getCoordinatesFromMouseEvent(event);
             if (lastCoordinates.x != coordinates.x || lastCoordinates.y != coordinates.y) {
-                var position = parseInt((coordinates.y * size / scale) + coordinates.x / scale);
+                lastCoordinates.x = coordinates.x;
+                lastCoordinates.y = coordinates.y;
+                var position = parseInt((coordinates.y * size / scale) + coordinates.x);
                 var data = {x: coordinates.x, y: coordinates.y, position: position};
                 mouseoverCallback(data);
             }

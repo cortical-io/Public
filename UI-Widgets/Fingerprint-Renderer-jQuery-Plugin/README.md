@@ -105,11 +105,18 @@ available options are:
 			cluster, which is a reference to the cluster that was clicked.</td>
 		</tr>
 		<tr>
+            <td>clusterMouseoverCallback</td>
+            <td>Function</td>
+            <td>$.noop</td>
+            <td>Function called when a user moves their mouse out of cluster. The function receives a callback
+            parameter called cluster, which is a reference to the cluster that was hovered over.</td>
+        </tr>
+		<tr>
 			<td>clusterMouseoverCallback</td>
 			<td>Function</td>
 			<td>$.noop</td>
 			<td>Function called when a user moves their mouse over a cluster. The function receives a callback
-			parameter called cluster, which is a reference to the cluster that was clicked.</td>
+			parameter called cluster, which is a reference to the cluster that the cursor left.</td>
 		</tr>
 		<tr>
 			<td>containerBorder</td>

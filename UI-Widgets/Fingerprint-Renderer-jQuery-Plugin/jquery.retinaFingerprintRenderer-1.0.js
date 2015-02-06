@@ -85,6 +85,7 @@
         var clusterFillOpacity = options.clusterFillOpacity;
         var clusterClickCallback = options.clusterClickCallback;
         var clusterMouseoverCallback = options.clusterMouseoverCallback;
+        var clusterMouseoutCallback = options.clusterMouseoutCallback;
         var containerBorder = options.containerBorder;
         var fadeInTime = options.fadeInTime;
         var fadeOutTime = options.fadeOutTime;
@@ -224,14 +225,6 @@
 
             // Enable automatic rendering on every tick
             // TODO only necessary when drawing is enabled: createjs.Ticker.addEventListener("tick", stage);
-
-            // Initialize the points object used to contain the internal representation of displayed fingerprints
-            resetPoints(points);
-            for (var y = 0; y < fingerprintSize; y++) {
-                for (var x = 0; x < fingerprintSize; x++) {
-                    points[x][y] = 0;
-                }
-            }
 
             stage.cache(0, 0, size, size);
             return stage;
@@ -388,6 +381,10 @@
                 clusterMouseoverCallback(cluster);
                 clusterListener();
             });
+            clusterFill.on("mouseout", function (evt) {
+                clusterMouseoutCallback(cluster);
+                clusterListener();
+            });
         }
 
         /**
@@ -467,6 +464,7 @@
         clusterFillOpacity: 0.2,
         clusterClickCallback: $.noop,
         clusterMouseoverCallback: $.noop,
+        clusterMouseoutCallback: $.noop,
         containerBorder: "solid 2px #EDEDED",
         fadeInTime: 0,
         fadeOutTime: 0,

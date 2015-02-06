@@ -105,7 +105,7 @@ available options are:
 			cluster, which is a reference to the cluster that was clicked.</td>
 		</tr>
 		<tr>
-            <td>clusterMouseoverCallback</td>
+            <td>clusterMouseoutCallback</td>
             <td>Function</td>
             <td>$.noop</td>
             <td>Function called when a user moves their mouse out of cluster. The function receives a callback

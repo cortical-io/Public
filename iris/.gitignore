@@ -1,0 +1,13 @@
+*.DS_Store
+/.DS_Store
+/bin
+/build
+/doc
+/deploy
+deploy.sh
+.idea/
+*.iml
+.gradle
+.settings
+/target
+htm.java.iml

@@ -1,0 +1,77 @@
+apply plugin: 'maven'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'signing'
+
+group = 'io.cortical'
+version = '1.0.0'
+archivesBaseName = 'iris'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Iris', 'Implementation-Version': '1.0.0'
+    }
+}
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use 'maven central' for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    mavenCentral()
+    
+    maven {
+        url "./repo"
+    }
+}
+
+dependencies {
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.4.4'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.4.4'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.4.4'
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.10'
+    compile group: 'io.reactivex', name: 'rxjava', version: '1.0.10'
+    compile group: 'io.cortical', name: 'retina-api-java-sdk', version: '1.0.2'
+    compile group: 'io.cortical', name: 'ExtendedClient', version: '1.5'
+    compile group: 'cortical', name: 'cortical-fxwidgets', version: '1.5.7'
+    compile group: 'tidbit', name: 'fxpresso', version: '1.1'
+    compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.12'
+    compile group: 'fxmisc', name: 'richtextfx', version: '0.6.10'
+    compile group: 'org.bushe', name: 'eventbus', version: '1.4'
+    compile group: 'io.reactivex', name: 'rxjava', version: '1.1.5'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version:'1.1.2'
+    compile group: 'de.ruedigermoeller', name: 'fst', version: '2.45'
+    testCompile group: 'junit', name: 'junit', version:'4.11'
+}
+
+jar {
+  manifest {
+    attributes(
+      'Main-Class': 'io.cortical.iris.Iris',
+    )
+  }
+}
+
+task fatJar(type: Jar) {
+  manifest.from jar.manifest
+  classifier = 'all'
+  from {
+    configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+  } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+  }
+  with jar
+}
+
+artifacts {
+    archives fatJar
+}
+
+// create Gradle wrapper with command line `gradle wrapper` in terminal
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2'
+}

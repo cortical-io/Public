@@ -75,4 +75,5 @@ In general, using IRIS requires opening "Input Windows" and "Output Windows", an
 
 **General Cursor Movement** 
 
-In general, use the arrow keys to move the cursor in-between the terms, and "tab/shift-tab" to move to each term...
+* In general, use the arrow keys to move the cursor in-between the terms, and "tab/shift-tab" to move to each term.
+* Use the **"ctrl"** key to select words or enter parenthesis between words once the cursor is moved.

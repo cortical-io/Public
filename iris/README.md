@@ -54,9 +54,9 @@ _The application will prompt for an API Key, which IRIS will guide you to do. Ju
 ### Usage:  ![alt text](http://metaware.us/iris/images/info.png "Info Icon")
 
 In general, using IRIS requires opening "Input Windows" and "Output Windows", and connecting them.
-* Input Windows - allow you to enter either terms, expressions or full-bodied text. The first Input Window opened automatically opens an Output Window and connects it. For others, you must open and connect them manually.
+* **Input Windows** - allow you to enter either terms, expressions or full-bodied text. The first Input Window opened automatically opens an Output Window and connects it. For others, you must open and connect them manually.
 
-* Output Windows - show progress of all queries, and display the results in many different ways. Select on the various tabs in order to see the different output formats.
+* **Output Windows** - show progress of all queries, and display the results in many different ways. Select on the various tabs in order to see the different output formats.
 
 **For Tips:** _click on ![alt text](http://metaware.us/iris/images/info.png "Info Icon")_, available throughout IRIS.
 

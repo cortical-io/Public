@@ -17,9 +17,9 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 [Download Iris dmg installer (for macosx)](http://metaware.us/iris/Iris-1.0.9q-installer.dmg)
 - **NOTE:** _The dmg installer **requires no Java installation** (because it is fully self-contained), therefore it is ~80MB in size._
 
-- Also **NOTE:** 
+Also **NOTE:** 
 
-* You will have to "allow" the installed app to run by going to the: Apple Menu > System Preferences > Security & Privacy > Open Anyway  <-- click on button.
+* You will have to "allow" the installed app to run by going to the: **Apple Menu > System Preferences > Security & Privacy > Open Anyway**  <-- click on the "Open Anyway" button.
 * The application will prompt for an API Key, which IRIS will guide you to do. Just click on the "Get API" button, and copy the API Key into IRIS once obtained.
 
 

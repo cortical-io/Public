@@ -11,7 +11,9 @@
 A custom **JavaFX** application allowing rigorous experimentation and examination of the Cortical.io Retina APIs. In addition, this application serves as a reference implementation for users wishing to write applications which access the Retina.
 
 ---
-### Version 1.0:
+## Version 1.0:
+
+### Mac OSX
 
 
 [Download Iris dmg installer (for macosx)](http://metaware.us/iris/Iris-1.0.9q-installer.dmg) 
@@ -24,10 +26,22 @@ Also **NOTE:**
 
 * You will have to "allow" the installed app to run by going to the: **Apple Menu > System Preferences > Security & Privacy > Open Anyway**  <-- click on the "Open Anyway" button.
 
+---
+
+### Windows & Linux
 
 [Download Iris "clickable" Jar File](http://metaware.us/iris/iris-1.0.9q-all.jar)
 - **NOTE:** [_Requires Java 8 installation_](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * To get Java 8, Select [**"Free Java Download"**](https://www.java.com/en/download/)
+
+**To Run:**
+
+Click on the ".jar" file or execute:
+
+```Java
+> java -jar iris-1.0.9q-all.jar
+```
+...on the command line.
 
 ---
 

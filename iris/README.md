@@ -47,11 +47,9 @@ execute:
 
 ---
 
-_The application will prompt for an API Key, which IRIS will guide you to do. Just click on the "Get API" button, and copy the API Key into IRIS once obtained._
-
----
-
 ### Usage:  ![alt text](http://metaware.us/iris/images/info.png "Info Icon")
+
+<sub>_The application will prompt for an API Key, which IRIS will guide you to do. Just click on the "Get API" button, and copy the API Key into IRIS once obtained._</sub>
 
 In general, using IRIS requires opening "Input Windows" and "Output Windows", and connecting them.
 * **Input Windows** - allow you to enter either terms, expressions or full-bodied text. The first Input Window opened automatically opens an Output Window and connects it. For others, you must open and connect them manually.

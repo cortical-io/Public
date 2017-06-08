@@ -1,6 +1,6 @@
 
 <p align="center">
-<img src="http://metaware.us/images/iris_black_font_smaller.png" alt="Iris">
+<A href="http://metaware.us/iris/images/iris_window.png"><img src="http://metaware.us/images/iris_black_font_smaller.png" alt="Iris"></A>
 </p>
 
 <p align="center">

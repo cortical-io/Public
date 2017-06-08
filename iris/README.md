@@ -23,15 +23,14 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 
 Also **NOTE:** 
 
-* You will have to "allow" the installed app to run by going to the: **Apple Menu > System Preferences > Security & Privacy > Open Anyway**  <-- click on the "Open Anyway" button.
+* Once downloaded, you will have to "allow" the installed app to run by going to the: **Apple Menu > System Preferences > Security & Privacy > Open Anyway**  <-- click on the "Open Anyway" button.
 
 ---
 
 ### Windows & Linux
 
 [Download Iris "clickable" Jar File](http://metaware.us/iris/iris-1.0.9q-all.jar)
-- **NOTE:** _Requires Java 8 installation_
-* To get Java 8, Select [**"Free Java Download"**](https://www.java.com/en/download/)
+- **NOTE:** _Requires Java 8 installation_ - to get Java 8, Select [**"Free Java Download"**](https://www.java.com/en/download/)
 
 **To Run:**
 

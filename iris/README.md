@@ -58,6 +58,6 @@ In general, using IRIS requires opening "Input Windows" and "Output Windows", an
 
 * **Output Windows** - show progress of all queries, and display the results in many different ways. Select on the various tabs in order to see the different output formats.
 
-**For Tips:** _click on ![alt text](http://metaware.us/iris/images/info.png "Info Icon")_, available throughout IRIS.
+**For Tips:** _click on ![alt text](http://metaware.us/iris/images/info.png "Info Icon")_, available throughout **IRIS**.
 
 

@@ -49,5 +49,15 @@ execute:
 
 _The application will prompt for an API Key, which IRIS will guide you to do. Just click on the "Get API" button, and copy the API Key into IRIS once obtained._
 
+---
+
+### Usage:
+
+In general, using IRIS requires opening "Input Windows" and "Output Windows", and connecting them.
+* Input Windows - allow you to enter either terms, expressions or full-bodied text. The first Input Window opened automatically opens an Output Window and connects it. For others, you must open and connect them manually.
+
+* Output Windows - show progress of all queries, and display the results in many different ways. Select on the various tabs in order to see the different output formats.
+
+**For Tips:** _click on ![alt text](ftp://metaware@metaware.us@metaware.us/htdocs/iris/images/info.png "Info Icon")_, available throughout IRIS.
 
 

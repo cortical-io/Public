@@ -1,6 +1,6 @@
 Cortical.io
 ===========
-Welcome to the cortical.io Public repository!
+Welcome to the Cortical.io Public repository!
 
 This is the public repository of [Cortical.io](http://www.cortical.io/).
 You will find the following items on this repository:
@@ -17,7 +17,7 @@ You will find the following items on this repository:
 License
 -------
 
-Copyright 2014 cortical.io GmbH.
+Copyright 2014 Cortical.io GmbH.
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,

@@ -31,7 +31,7 @@ Also **NOTE:**
 ### Windows & Linux
 
 [Download Iris "clickable" Jar File](http://metaware.us/iris/iris-1.0.9q-all.jar)
-- **NOTE:** [_Requires Java 8 installation_](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+- **NOTE:** _Requires Java 8 installation_
 * To get Java 8, Select [**"Free Java Download"**](https://www.java.com/en/download/)
 
 **To Run:**

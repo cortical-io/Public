@@ -47,7 +47,7 @@ execute:
 
 ---
 
-### Usage:  ![alt text](http://metaware.us/iris/images/info.png "Info Icon")
+### Usage:  [![alt text](http://metaware.us/iris/images/info.png "Info Icon")](http://metaware.us/iris/images/iris_window.png)
 
 <sub>_The application will prompt for an API Key, which IRIS will guide you to do. Just click on the "Get API" button, and copy the API Key into IRIS once obtained._</sub>
 

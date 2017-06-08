@@ -12,7 +12,7 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 
 ---
 # Installation
---
+
 
 ## Version 1.0:
 

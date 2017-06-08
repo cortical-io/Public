@@ -10,10 +10,11 @@
 <br><br>
 A custom **JavaFX** application allowing rigorous experimentation and examination of the Cortical.io Retina APIs. In addition, this application serves as a reference implementation for users wishing to write applications which access the Retina.
 
-
+<br>
 
 ---
 
+<br>
 
 # Installation Version 1.0:
 

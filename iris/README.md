@@ -14,7 +14,8 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 ### Version 1.0:
 
 
-[Download Iris dmg installer (for macosx)](http://metaware.us/iris/Iris-1.0.9q-installer.dmg)
+[Download Iris dmg installer (for macosx)](http://metaware.us/iris/Iris-1.0.9q-installer.dmg) 
+
 **NOTE:** 
 
 * _The dmg installer **requires no Java installation** (because it is fully self-contained), therefore it is ~80MB in size._

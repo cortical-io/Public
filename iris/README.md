@@ -34,7 +34,11 @@ Also **NOTE:**
 
 **To Run:**
 
-Double-Click on the ".jar" file or execute:
+Simply Double-Click on the ".jar" file...
+
+-or-
+
+execute:
 
 ```
 > java -jar iris-1.0.9q-all.jar

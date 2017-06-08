@@ -65,4 +65,13 @@ In general, using IRIS requires opening "Input Windows" and "Output Windows", an
 
 **For Tips:** _click on [![alt text](http://metaware.us/iris/images/info.png "Info Icon")](http://metaware.us/iris/images/iris_window.png)_, available throughout **IRIS**.
 
+---
 
+### "Expressions" Tab
+
+1. Don't enter in any "operators" (i.e. AND, OR, XOR etc.) 
+2. Just enter word after word and in-between the UI will prompt for the operators... 
+3. Use the "arrow" keys to cycle through the operator choices... 
+
+**General Cursor Movement**
+4. In general, use the arrow keys to move the cursor in-between the terms, and "tab/shift-tab" to move to each term...

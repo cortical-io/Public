@@ -20,12 +20,14 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 Also **NOTE:** 
 
 * You will have to "allow" the installed app to run by going to the: **Apple Menu > System Preferences > Security & Privacy > Open Anyway**  <-- click on the "Open Anyway" button.
-* The application will prompt for an API Key, which IRIS will guide you to do. Just click on the "Get API" button, and copy the API Key into IRIS once obtained.
 
 
 [Download Iris "clickable" Jar File](http://metaware.us/iris/iris-1.0.9q-all.jar)
 - **NOTE:** [_Requires Java 8 installation_](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * To get Java 8, Select [**"Free Java Download"**](https://www.java.com/en/download/)
+
+
+The application will prompt for an API Key, which IRIS will guide you to do. Just click on the "Get API" button, and copy the API Key into IRIS once obtained.
 
 
 

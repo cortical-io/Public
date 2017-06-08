@@ -26,8 +26,9 @@ Also **NOTE:**
 - **NOTE:** [_Requires Java 8 installation_](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * To get Java 8, Select [**"Free Java Download"**](https://www.java.com/en/download/)
 
+---
 
-The application will prompt for an API Key, which IRIS will guide you to do. Just click on the "Get API" button, and copy the API Key into IRIS once obtained.
+_The application will prompt for an API Key, which IRIS will guide you to do. Just click on the "Get API" button, and copy the API Key into IRIS once obtained._
 
 
 

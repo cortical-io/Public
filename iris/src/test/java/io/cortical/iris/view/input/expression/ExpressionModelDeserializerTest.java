@@ -88,7 +88,8 @@ public class ExpressionModelDeserializerTest {
                 "\t} ]\n" +
               "}\n";
     
-    private String nestedExpressionString = 
+    @SuppressWarnings("unused")
+	private String nestedExpressionString = 
         "{" +
                 "\"sub\" : [" +
                         "{" +

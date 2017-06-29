@@ -128,7 +128,8 @@ public class ExpressionDisplay extends Group implements Resizable, View, Seriali
      * when a query is complete, then it checks for an empty display and if 
      * empty, knows to send out a clearance message to any connected {@link OutputWindow}s.
      */
-    private transient EventTopicSubscriber<Payload> delayer;
+    @SuppressWarnings("unused")
+	private transient EventTopicSubscriber<Payload> delayer;
     
     
     

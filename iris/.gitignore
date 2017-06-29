@@ -1,5 +1,6 @@
 *.DS_Store
 /.DS_Store
+../.DS_Store
 /bin
 /build
 /doc
@@ -10,4 +11,7 @@ deploy.sh
 .gradle
 .settings
 /target
+/package
+.project
+.classpath
 htm.java.iml

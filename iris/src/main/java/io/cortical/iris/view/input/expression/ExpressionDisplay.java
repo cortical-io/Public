@@ -45,7 +45,9 @@ import io.cortical.retina.model.Term;
 import io.cortical.util.ConfigurableIndentor;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -87,6 +89,8 @@ public class ExpressionDisplay extends Group implements Resizable, View, Seriali
     private static final double SPACING = 5;
     
     public transient final ObjectProperty<Payload> messageProperty = new SimpleObjectProperty<>();
+    
+    public transient final BooleanProperty queryFromEnterKeyProperty = new SimpleBooleanProperty();
     
     private transient double lineHeight;
     
@@ -728,6 +732,10 @@ public class ExpressionDisplay extends Group implements Resizable, View, Seriali
             Window w = WindowService.getInstance().windowFor(this);
             wbc.defaultExpressionOperatorProperty().bind(
                 WindowService.getInstance().windowTitleFor(w).defaultExpressionOperatorProperty());
+            
+            wbc.getExpressionField().enterKeyPressedProperty().addListener((v,o,n) -> {
+            	queryFromEnterKeyProperty.set(true);
+            });
         });
         
                
@@ -841,11 +849,21 @@ public class ExpressionDisplay extends Group implements Resizable, View, Seriali
      */
     private void setDisplayDependentMessageText(String text) {
         if(text != null && !text.isEmpty() && 
-            (messageText.getText() == null || messageText.getText().isEmpty() || !text.trim().equals(messageText.getText().trim()))) {
+            (messageText.getText() == null || messageText.getText().isEmpty() || !text.trim().equals(messageText.getText().trim()) ||
+            	queryFromEnterKeyProperty.get())) {
             
             Window w = WindowService.getInstance().windowFor(ExpressionDisplay.this);
             Payload request = new Payload();
             EventBus.get().broadcast(BusEvent.INPUT_EVENT_NEW_EXPRESSION_STATE.subj() + w.getWindowID(), request);
+            
+            if(queryFromEnterKeyProperty.get()) {
+            	if(!text.isEmpty()) {
+            		// Set empty so that property will trigger when real text
+            		// is set below.
+            		messageText.setText("");
+            	}
+            	queryFromEnterKeyProperty.set(false);
+            }
         }
         
         messageText.setText(text);

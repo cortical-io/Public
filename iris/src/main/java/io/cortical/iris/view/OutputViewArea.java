@@ -1153,6 +1153,9 @@ public class OutputViewArea extends ViewArea {
         button1.getStyleClass().addAll("send");
         button1.setOnAction(e -> {
             Platform.runLater(() -> {
+            	if(e.getSource().equals(exprSend)) {
+            		isNewExpression = true;
+            	}
                 resendLastQuery();
             });
         });

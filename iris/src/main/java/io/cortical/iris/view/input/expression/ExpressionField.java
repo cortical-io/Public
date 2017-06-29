@@ -34,6 +34,7 @@ public class ExpressionField extends TextField implements Bubble {
     private ObjectProperty<String> keyPressedProperty = new SimpleObjectProperty<>();
     private BooleanProperty isEditingProperty = new SimpleBooleanProperty();
     private OccurrenceProperty becomingEmptyProperty = new OccurrenceProperty();
+    private OccurrenceProperty enterKeyPressedProperty = new OccurrenceProperty();
     
     private String interimPrompt = "";
     
@@ -60,6 +61,16 @@ public class ExpressionField extends TextField implements Bubble {
         
         addKeyHandlers();
         addMouseHandler();
+    } 
+    
+    /**
+     * Returns the property activated when the enter key is pressed 
+     * for downstream clients who need special handling.
+     * 
+     * @return
+     */
+    public OccurrenceProperty enterKeyPressedProperty() {
+    	return enterKeyPressedProperty;
     }
     
     /**
@@ -268,6 +279,8 @@ public class ExpressionField extends TextField implements Bubble {
                 Platform.runLater(() -> WindowService.getInstance().windowFor(this).resizeWindow());
                 
                 isEditingProperty.set(false);
+                
+                enterKeyPressedProperty.set();
                 
                 if(getText().trim().isEmpty()) {
                     keyReleasedProperty.set("empty");

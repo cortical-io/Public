@@ -181,14 +181,26 @@ public class StatusBar extends Pane implements Resizable {
             b.getStyleClass().setAll("status-bar-menubutton");
             menuButton = b;
             menuButton.addEventHandler(MouseEvent.MOUSE_CLICKED, m -> {
-                if(menuButton.isSelected()) {
-                    showWindowMenu();
-                }else{
-                    hideWindowMenu();
-                }
+                activateMenu(menuButton.isSelected());
             });
         }
         return menuButton;
+    }
+    
+    /**
+     * Activates/Deactivates (shows/hides) the menu.
+     * @param becomeActive      true if the menu should be shown, false if not.
+     */
+    public void activateMenu(boolean becomeActive) {
+        if(becomeActive) {
+            showWindowMenu();
+        }else{
+            hideWindowMenu();
+        }
+    }
+    
+    public boolean menuActivated() {
+        return popup.isShowing();
     }
     
     /**

@@ -112,6 +112,7 @@ public class ContentPane extends StackPane {
                 e.consume();
             }
             
+            // Do NOT consume() so that the ExpressionField can delete the "∂" char.
             if(ALT_D.match(e) && e.getEventType().equals(KeyEvent.KEY_PRESSED)) {
                 ControlPane controlPane = WindowService.getInstance().getControlPane();
                 controlPane.getInputWindowBox().clipDetectorVisibleProperty().set(
@@ -119,8 +120,13 @@ public class ContentPane extends StackPane {
                 
                 LOGGER.debug("Global Key Event Filter: trapped Alt+D - Toggling Clipboard Monitor to on: " + 
                     controlPane.getInputWindowBox().clipDetectorVisibleProperty().get());
-                                
-                e.consume();
+            }
+            
+            if(ALT_M.match(e) && e.getEventType().equals(KeyEvent.KEY_RELEASED)) {
+                Window w = WindowService.getInstance().getSelectedWindow();
+                if(w != null && w.isVisible()) {
+                    w.getController().activateDeactivateStatusBarMenu();
+                }
             }
         });
     }

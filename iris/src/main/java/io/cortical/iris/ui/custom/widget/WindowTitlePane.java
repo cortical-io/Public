@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fxpresso.tidbit.ui.Flyout;
 import fxpresso.tidbit.ui.Flyout.Side;
+import io.cortical.fx.webstyle.Impression;
 import io.cortical.iris.ApplicationService;
 import io.cortical.iris.RetinaClientFactory;
 import io.cortical.iris.WindowService;
@@ -29,8 +30,12 @@ import io.cortical.iris.ui.WindowBox;
 import io.cortical.iris.ui.custom.property.OccurrenceProperty;
 import io.cortical.iris.ui.custom.rangeslider.RangeSlider;
 import io.cortical.iris.ui.util.DragMode;
+import io.cortical.iris.ui.util.SnapshotAssistant;
+import io.cortical.iris.view.View;
 import io.cortical.iris.view.ViewType;
 import io.cortical.iris.view.input.expression.Operator;
+import io.cortical.iris.view.output.CompareDisplay;
+import io.cortical.iris.view.output.FingerprintDisplay;
 import io.cortical.iris.window.ColorIDTab;
 import io.cortical.iris.window.InputWindow;
 import io.cortical.iris.window.OutputWindow;
@@ -60,6 +65,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
@@ -79,6 +85,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
+import javafx.util.Pair;
 import javafx.util.StringConverter;
 import javafx.util.converter.NumberStringConverter;
 
@@ -149,6 +156,8 @@ public class WindowTitlePane extends TitledPane implements Serializable {
     private transient StackPane defaultOperatorPane;
     private transient StackPane defaultIndentationPane;
     private transient StackPane clipboardDragModePane;
+    private transient StackPane fingerprintSnapshotPane;
+    private transient StackPane compareSnapshotPane;
     
     private transient ComboBox<FullClient> inputSpecificRetinaChoices;
     private transient ComboBox<Operator> defaultOperatorChoices;
@@ -292,6 +301,19 @@ public class WindowTitlePane extends TitledPane implements Serializable {
             addAutoSendPropertyHandler();
             
             attributePane.getChildren().add(getShowCompareInfoButtonPane());
+            fingerprintSnapshotPane = getFingerprintSnapshotPane();
+            compareSnapshotPane = getComparisonSnapshotPane();
+            
+            ((OutputWindow)w).getViewArea().selectedViewProperty().addListener((v,o,n) -> {
+                attributePane.getChildren().remove(fingerprintSnapshotPane);
+                attributePane.getChildren().remove(compareSnapshotPane);
+                if(n == ViewType.FINGERPRINT) {
+                    attributePane.getChildren().add(fingerprintSnapshotPane);
+                }else if(n == ViewType.COMPARE){
+                    attributePane.getChildren().add(compareSnapshotPane);
+                }
+            });
+            
         }else{
             attributePane.getChildren().addAll(
                 getRetinaSelectionAttributePane(), 
@@ -1168,5 +1190,76 @@ public class WindowTitlePane extends TitledPane implements Serializable {
         }
         
         return json;
+    }
+    
+    private StackPane getFingerprintSnapshotPane() {
+        StackPane radiusVisualGroup = new StackPane();
+        radiusVisualGroup.setPrefSize(190, 35);
+        radiusVisualGroup.getStyleClass().add("radius-visual-group");
+        
+        VBox visGroupBox = new VBox(3);
+        visGroupBox.getStyleClass().add("window-title-drag-mode-toggle");
+        visGroupBox.setPrefWidth(190);
+        visGroupBox.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
+        
+        Label snapshotLabel = new Label("Snapshot PNG:  Fingerprint");
+        snapshotLabel.getStyleClass().add("radius-visual-group-label");
+        snapshotLabel.setPrefWidth(190);
+        snapshotLabel.setPrefHeight(10);
+        
+        Button snapshotButton = new Button("Snapshot");
+        snapshotButton.setFocusTraversable(false);
+        snapshotButton.setPrefWidth(190);
+        snapshotButton.setPrefHeight(15);
+        snapshotButton.setOnAction(e -> {
+            View view = ((OutputWindow)window).getViewArea().getSelectedView();
+            FingerprintDisplay display = (FingerprintDisplay)view;
+            Impression i = display.getImpression();
+            Image image = SnapshotAssistant.snapshot(i, Color.WHITE);
+            System.out.println("Got fingerprint image = " + image);
+            Window.SNAPSHOT_FUNCTION.accept(window.getWindowID(), new Pair<Image, String>(image, "Fingerprint Display"));
+        });
+        
+        visGroupBox.getChildren().addAll(snapshotLabel, snapshotButton);
+        
+        radiusVisualGroup.getChildren().add(visGroupBox);
+        
+        return radiusVisualGroup;
+    }
+    
+    private StackPane getComparisonSnapshotPane() {
+        StackPane radiusVisualGroup = new StackPane();
+        radiusVisualGroup.setPrefSize(190, 35);
+        radiusVisualGroup.getStyleClass().add("radius-visual-group");
+        
+        VBox visGroupBox = new VBox(3);
+        visGroupBox.getStyleClass().add("window-title-drag-mode-toggle");
+        visGroupBox.setPrefWidth(190);
+        visGroupBox.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
+        
+        Label snapshotLabel = new Label("Snapshot PNG:  Compare Display");
+        snapshotLabel.getStyleClass().add("radius-visual-group-label");
+        snapshotLabel.setPrefWidth(190);
+        snapshotLabel.setPrefHeight(10);
+        
+        Button snapshotButton = new Button("Snapshot");
+        snapshotButton.setFocusTraversable(false);
+        snapshotButton.setPrefWidth(190);
+        snapshotButton.setPrefHeight(15);
+        snapshotButton.setOnAction(e -> {
+            View view = ((OutputWindow)window).getViewArea().getSelectedView();
+            CompareDisplay display = (CompareDisplay)view;
+            Node node = display.getDisplayedNode();
+            Image image = SnapshotAssistant.snapshot(node, Color.WHITE);
+            String description = (node instanceof Impression) ? "Comparison Fingerprint" : "Metrics Display";
+            
+            Window.SNAPSHOT_FUNCTION.accept(window.getWindowID(), new Pair<Image, String>(image, description));
+        });
+        
+        visGroupBox.getChildren().addAll(snapshotLabel, snapshotButton);
+        
+        radiusVisualGroup.getChildren().add(visGroupBox);
+        
+        return radiusVisualGroup;
     }
 }

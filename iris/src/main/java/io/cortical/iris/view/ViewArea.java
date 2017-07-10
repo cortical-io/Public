@@ -66,6 +66,12 @@ public abstract class ViewArea extends Pane implements Resizable, Serializable {
     public abstract void configure(WindowConfig config);
     
     /**
+     * Handles any view-specific release of listeners or resources when the
+     * parent window is being closed.
+     */
+    public abstract void releaseResourcesForWindowClose();
+    
+    /**
      * Registers the specified {@link Parent} (or a derivative of Parent)
      * as the view indicated when the specified {@link ViewType} enum
      * is specified.

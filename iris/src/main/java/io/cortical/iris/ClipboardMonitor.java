@@ -6,9 +6,12 @@ import org.reactfx.EventStreams;
 import org.reactfx.Subscription;
 
 import io.cortical.iris.ui.WindowBox;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCombination;
 
 /**
@@ -85,27 +88,35 @@ public class ClipboardMonitor implements ChangeListener<Boolean> {
      */
     public synchronized void toggleExecution(boolean n) {
         final Clipboard clipboard = Clipboard.getSystemClipboard();
-        clipboard.clear();
+        ClipboardContent clip = new ClipboardContent();
+        clip.put(DataFormat.PLAIN_TEXT, "");
+        clipboard.setContent(clip);
         
-        if(n && !isSubscribed) {
-            subscription = EventStreams.ticks(Duration.ofMillis(2000)).subscribe(tick -> {
-                if (clipboard.hasString()) {
-                    String newString = clipboard.getString();
-                    if(!oldString.equals(newString)) {
-                        System.out.println("newString = " + newString);
-                        
-                        oldString = newString;
-                        
-                        WindowService.getInstance().getControlPane().getInputWindowBox().clipDetectedProperty().set(true);
+        Platform.runLater(() -> {
+            System.out.println("clipboard.hasString() ? "  + clipboard.hasString() + ",  " + clipboard.getContent(DataFormat.PLAIN_TEXT));
+            
+            if(n && !isSubscribed) {
+                oldString = "";
+                
+                subscription = EventStreams.ticks(Duration.ofMillis(2000)).subscribe(tick -> {
+                    if (clipboard.hasString()) {
+                        String newString = clipboard.getString();
+                        if(!oldString.equals(newString)) {
+                            System.out.println("newString = " + newString);
+                            
+                            oldString = newString;
+                            
+                            WindowService.getInstance().getControlPane().getInputWindowBox().clipDetectedProperty().set(true);
+                        }
                     }
+                });
+            } else if(!n) {
+                if(subscription != null) {
+                    subscription.unsubscribe();
+                    isSubscribed = ((subscription = null) != null);
                 }
-            });
-        } else if(!n) {
-            if(subscription != null) {
-                subscription.unsubscribe();
-                isSubscribed = ((subscription = null) != null);
             }
-        }
+        });
     }
 
     /**

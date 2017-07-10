@@ -112,6 +112,11 @@ public enum BusEvent {
     //    Output Config Map Deletion Helper  //
     ///////////////////////////////////////////
     APPLICATION_WINDOW_DELETE_PROMPT("ApplicationWindowDeletePrompt"),
+
+    ///////////////////////////////////////////
+    //      Node Image Snapshot Helper       //
+    ///////////////////////////////////////////
+    APPLICATION_NODE_SAVE_SNAPSHOT("ApplicationNodeSaveSnapshot_"),
     
     ///////////////////////////////////////////
     //   Input Connection to Output Window   //
@@ -127,6 +132,7 @@ public enum BusEvent {
     FINGERPRINT_DISPLAY_REMOVE("FingerprintDisplayRemove_"),
     FINGERPRINT_DISPLAY_REPLACE("FingerprintDisplayReplace_"),
     FINGERPRINT_DISPLAY_REMOVE_BY_COLOR("FingerprintDisplayRemoveByColor_"),
+    FINGERPRINT_DISPLAY_ADD_POSITIONS("FingerprintDisplayAddPositions_"),
     
     ///////////////////////////////////////////
     //    Fingerprint Tooltip Similar Terms  //

@@ -123,6 +123,16 @@ public class OutputWindow extends Window implements WindowContext {
     }
     
     /**
+     * Releases all handlers and listeners which may stick around
+     * after a parent window is closing.
+     */
+    public void releaseResourcesForWindowClose() {
+        getInputSelector().reset();
+        getInputSelector().disconnect();
+        getViewArea().releaseResourcesForWindowClose();
+    }
+    
+    /**
      * Adds the specified {@link InputWindow} to this {@code OutputWindow}'s list of
      * input windows.
      * 

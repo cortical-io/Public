@@ -262,6 +262,20 @@ public class CompareDisplay extends LabelledRadiusPane implements View {
     }
     
     /**
+     * Returns the currently visible node being displayed:
+     * one of either the metric scroll pane contents, or the compare {@link Impression}
+     * @return
+     */
+    public Node getDisplayedNode() {
+        boolean metricDisplayIsOpaque = metricContentScroll.isVisible();
+        if(metricDisplayIsOpaque) {
+            return metricContentScroll.getContent();
+        } else {
+            return compareImpression.getImpression();
+        }
+    }
+    
+    /**
      * Implemented by {@code View} subclasses to handle an error
      * 
      * @param	context		the error information container

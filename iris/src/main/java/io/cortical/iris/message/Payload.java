@@ -14,6 +14,8 @@ public class Payload {
     
     Object payload;
     
+    String description;
+    
     Window window;
     
     /**
@@ -47,6 +49,22 @@ public class Payload {
      */
     public Object getPayload() {
         return payload;
+    }
+    
+    /**
+     * Sets the description string.
+     * @param desc
+     */
+    public void setDescription(String desc) {
+        this.description = desc;
+    }
+    
+    /**
+     * Returns the description string.
+     * @return
+     */
+    public String getDescription() {
+        return description;
     }
     
     /**

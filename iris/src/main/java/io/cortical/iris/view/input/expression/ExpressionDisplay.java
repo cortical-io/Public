@@ -53,6 +53,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -132,8 +133,7 @@ public class ExpressionDisplay extends Group implements Resizable, View, Seriali
      * when a query is complete, then it checks for an empty display and if 
      * empty, knows to send out a clearance message to any connected {@link OutputWindow}s.
      */
-    @SuppressWarnings("unused")
-	private transient EventTopicSubscriber<Payload> delayer;
+    private transient EventTopicSubscriber<Payload> delayer;
     
     
     
@@ -421,6 +421,14 @@ public class ExpressionDisplay extends Group implements Resizable, View, Seriali
         });
     }
     
+    public String getMessageText() {
+        return messageText.getText();
+    }
+    
+    public Node getInputArea() {
+        return inputArea;
+    }
+    
     /**
      * Implemented by {@code View} subclasses to handle an error
      * 
@@ -642,6 +650,10 @@ public class ExpressionDisplay extends Group implements Resizable, View, Seriali
         return textArea;
     }
     
+    public Model getJSONModel() {
+        return model;
+    }
+    
     /**
      * Sends the request for a server response by setting the {@link #messageProperty}
      */
@@ -707,12 +719,29 @@ public class ExpressionDisplay extends Group implements Resizable, View, Seriali
         
         wbc.expressionProperty().addListener((v,o,n) -> {
             Platform.runLater(() -> { 
-                if(n == null || container.hasRandomEdits()) {
+                boolean hasRandomEdits = false;
+                if(n == null || (hasRandomEdits = container.hasRandomEdits())) {
                     if(n != null) {
                         WindowService.getInstance().statusMessage(this, "Incomplete or Bad Expression.");
                         WindowService.getInstance().resetConnectedOutputWindows(this);
+                        
+                        requestLayout();
+                        Platform.runLater(() -> {
+                            List<Integer> editLocations = container.getRandomEditLocations();
+                            container.checkRandomEditMode(true);
+                            editLocations = container.getRandomEditLocations();
+                            container.addRandomEditMarkers(editLocations);
+                            if(!editLocations.isEmpty()) {
+                                container.moveCursor(editLocations.get(0));
+                                container.setBubbleInsertionIndex(container.getFocusTraversalIndex());
+                            }
+                        });
                     }
                     return;
+                } else if(!hasRandomEdits) {
+                    container.removeEditMarkers();
+                    container.setDefaultState();
+                    container.setFocusTraversalIndex(container.getBubbleInsertionIndex());
                 }
                 
                 FilteredBubbleList filteredList = container.getFilteredBubbleList(n.getList());
@@ -734,7 +763,7 @@ public class ExpressionDisplay extends Group implements Resizable, View, Seriali
                 WindowService.getInstance().windowTitleFor(w).defaultExpressionOperatorProperty());
             
             wbc.getExpressionField().enterKeyPressedProperty().addListener((v,o,n) -> {
-            	queryFromEnterKeyProperty.set(true);
+                queryFromEnterKeyProperty.set(true);
             });
         });
         
@@ -849,27 +878,24 @@ public class ExpressionDisplay extends Group implements Resizable, View, Seriali
      */
     private void setDisplayDependentMessageText(String text) {
         if(text != null && !text.isEmpty() && 
-            (messageText.getText() == null || messageText.getText().isEmpty() || !text.trim().equals(messageText.getText().trim()) ||
-            	queryFromEnterKeyProperty.get())) {
+            (messageText.getText() == null || messageText.getText().isEmpty() || !text.trim().equals(messageText.getText().trim()))) {
             
             Window w = WindowService.getInstance().windowFor(ExpressionDisplay.this);
             Payload request = new Payload();
             EventBus.get().broadcast(BusEvent.INPUT_EVENT_NEW_EXPRESSION_STATE.subj() + w.getWindowID(), request);
             
             if(queryFromEnterKeyProperty.get()) {
-            	if(!text.isEmpty()) {
-            		// Set empty so that property will trigger when real text
-            		// is set below.
-            		messageText.setText("");
-            	}
-            	queryFromEnterKeyProperty.set(false);
+                if(!text.isEmpty()) {
+                    // Set empty so that property will trigger when real text
+                    // is set below.
+                    messageText.setText("");
+                }
+                queryFromEnterKeyProperty.set(false);
             }
         }
         
         messageText.setText(text);
         
-        container.typeEnter();
-    
         if(serverMessageArea.getChildren().contains(fullText)) {
             getFullModelString(model).subscribe(new Observer<String>() {
                 @Override public void onCompleted() { System.out.println("Completed"); }
@@ -978,6 +1004,15 @@ public class ExpressionDisplay extends Group implements Resizable, View, Seriali
                 })).start();
             }
         });
+    }
+    
+    /**
+     * Called when the window closes to disconnect the delayed clearer.
+     */
+    public void unsubscribeDelayedClearer() {
+        if(delayer != null) {
+            EventBus.get().unsubscribeTo(ViewArea.PROGRESS_PATTERN, delayer);
+        }
     }
     
     /**

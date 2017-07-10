@@ -93,6 +93,13 @@ public class WindowController implements EventTopicSubscriber<Payload> {
     }
     
     /**
+     * Activates the {@link StatusBar} menu.
+     */
+    public void activateDeactivateStatusBarMenu() {
+        window.getStatusBar().activateMenu(!window.getStatusBar().menuActivated());
+    }
+    
+    /**
      * The problem with change listener style event management is that something has to change
      * in order for handlers to get invoked. Ergo this method. We move the window back and forth
      * to get the change listeners to size everything up correctly inside a given window.
@@ -258,12 +265,7 @@ public class WindowController implements EventTopicSubscriber<Payload> {
         WINDOW_CLOSE_ACTION = (e, w) -> {
             WindowService.getInstance().destroyWindow(w);
             // Reset(): Make sure the the InputSelector flyout is dismissed when its parent window is.
-            if(!w.isInput()) {
-                ((OutputWindow)w).getInputSelector().reset();
-                ((OutputWindow)w).getInputSelector().disconnect();
-                ((OutputWindow)w).getViewArea().disconnectAllInputsFromEventBus();
-                ((OutputWindow)w).getViewArea().removeInfoButtonListener();
-            }
+            w.releaseResourcesForWindowClose();
         };
         WINDOW_ACTION_MAP.put(WINDOW_CLOSE_REQUEST.subj(), WINDOW_CLOSE_ACTION);
         

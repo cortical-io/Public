@@ -3,12 +3,15 @@ package io.cortical.iris.window;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 
 import io.cortical.iris.WindowService;
 import io.cortical.iris.ui.custom.radialmenu.RadialMenu;
 import io.cortical.iris.view.InputViewArea;
+import io.cortical.iris.view.ViewArea;
 import io.cortical.iris.view.WindowContext;
 import io.cortical.iris.view.input.expression.ExpressionDisplay;
+import io.cortical.iris.view.input.expression.ExpressionWordBubbleContainer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXMLLoader;
@@ -34,6 +37,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
+import rx.Observable;
 
 
 /**
@@ -53,6 +57,7 @@ public class InputWindow extends Window implements WindowContext {
     
     private transient RadialMenu showingRadialMenu;
     private transient StackPane overlay;
+    private transient Image snapshot;
     
     
     /**
@@ -90,6 +95,40 @@ public class InputWindow extends Window implements WindowContext {
     }
     
     /**
+     * Instructs this window to have its {@link ViewArea} take
+     * a snapshot image of itself.
+     * 
+     * See {@link ExpressionWordBubbleContainer#doDropEntries(List, int)} for
+     * the code site where the snapshot is set on a dropped FingerprintBubble.
+     */
+    public void snapshot() {
+        Observable<Image> obs = getViewArea().snapshotView();
+        if(obs != null) {
+            obs.subscribe(i -> this.snapshot = i);
+        }
+    }
+    
+    /**
+     * Returns the last snapshot image taken
+     * or null if there was none according to the
+     * rules for which view should be snapshot etc.
+     * 
+     * See {@link ExpressionWordBubbleContainer#doDropEntries(List, int)} for
+     * the code site where the snapshot is set on a dropped FingerprintBubble.
+     * @return
+     */
+    public Image getSnapshot() {
+        return snapshot;
+    }
+    
+    /**
+     * Sets the snapshot field to null.
+     */
+    public void clearSnapshot() {
+        snapshot = null;
+    }
+    
+    /**
      * Computes and returns the minimum size of this window as a function
      * of the min size required by the different parts of its contents
      * which are:
@@ -121,6 +160,11 @@ public class InputWindow extends Window implements WindowContext {
     @Override
     public boolean isInput() {
         return true;
+    }
+    
+    @Override
+    public void releaseResourcesForWindowClose() {
+        getViewArea().releaseResourcesForWindowClose();
     }
     
     /**

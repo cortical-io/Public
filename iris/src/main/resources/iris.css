@@ -42,7 +42,7 @@
 
 .tooltip {
     -fx-background-color: rgb(49, 109, 160, .5);
-    -fx-font-size: 10;
+    -fx-font-size: 12;
 }
 
 .window-content-pane {
@@ -1815,7 +1815,8 @@
     -fx-background-color: transparent;
 }
 
-.compare-impression-display-metric-buttons .toggle-button {
+.compare-impression-display-metric-buttons .toggle-button,
+.compare-impression-display-metric-buttons .button {
     -fx-background-color: transparent;
     -fx-border-color: rgb(237, 93, 37);
     -fx-border-width: 1;
@@ -1823,11 +1824,14 @@
     -fx-padding: 2 5 2 5;
 }
 
-.compare-impression-display-metric-buttons .toggle-button:hover {
+.compare-impression-display-metric-buttons .toggle-button:hover,
+.compare-impression-display-metric-buttons .button:hover {
     -fx-text-fill: white;
 }
 
-.compare-impression-display-metric-buttons .toggle-button:selected {
+.compare-impression-display-metric-buttons .toggle-button:selected,
+.compare-impression-display-metric-buttons .button:selected,
+.compare-impression-display-metric-buttons .button:armed {
     -fx-background-color: rgb(237, 93, 37);
     -fx-text-fill: white;
 }

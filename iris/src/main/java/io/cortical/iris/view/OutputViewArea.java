@@ -292,6 +292,7 @@ public class OutputViewArea extends ViewArea {
             windowTitlePane.dirtyProperty().addListener((v,o,n) -> dirtyProperty.set(n));
             selectedView = registeredViews.get(lastSelectedViewType);
             setTemporaryDisabledStyle();
+            selectedViewPropertyWrapper.set(ViewType.FINGERPRINT);
         });
         
         fadeIn.setFromValue(0.0);
@@ -660,6 +661,7 @@ public class OutputViewArea extends ViewArea {
         
         lastSelectedViewType = type;
         selectedView = registeredViews.get(type);
+        selectedViewPropertyWrapper.set(type);
     }
     
     /**
@@ -1103,6 +1105,16 @@ public class OutputViewArea extends ViewArea {
     }
     
     /**
+     * Handles any view-specific release of listeners or resources when the
+     * parent window is being closed.
+     */
+    @Override
+    public void releaseResourcesForWindowClose() {
+        disconnectAllInputsFromEventBus();
+        removeInfoButtonListener();
+    }
+    
+    /**
      * Executes a Fade in/out transition on the specified node.
      * 
      * @param n
@@ -1153,9 +1165,10 @@ public class OutputViewArea extends ViewArea {
         button1.getStyleClass().addAll("send");
         button1.setOnAction(e -> {
             Platform.runLater(() -> {
-            	if(e.getSource().equals(exprSend)) {
-            		isNewExpression = true;
-            	}
+                if(e.getSource().equals(exprSend)) {
+                    isNewExpression = true;
+                }
+
                 resendLastQuery();
             });
         });

@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import io.cortical.iris.WindowService;
 import io.cortical.iris.ui.Overlay;
 import io.cortical.iris.ui.util.DragAssistant;
+import io.cortical.iris.ui.util.SnapshotAssistant;
 import io.cortical.iris.view.output.CompareDisplay;
 import io.cortical.iris.view.output.CompareDisplay.Comparison;
 import io.cortical.iris.window.Window;
@@ -28,9 +29,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Bounds;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -38,6 +41,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import javafx.util.Pair;
 
 /**
  * Triple Fingerprint display showing comparison fingerprints together with
@@ -67,6 +71,7 @@ public class CompareImpressionDisplay extends StackPane {
     private Rectangle overlapBar;
     private Rectangle overlapBarFill;
     private HBox overlapMetricSelection;
+    private HBox snapshotBox;
     private ToggleGroup overlapMetricButtonGroup;
     private String selectedMetric;
     private String[] buttonTexts = { "Raw", "Cosine Similarity", "Euclidean Distance", "Jaccard Distance" };
@@ -114,6 +119,7 @@ public class CompareImpressionDisplay extends StackPane {
             double descWidth = helper.getBoundsInLocal().getWidth();
             overlapBarDesc.resizeRelocate(b.getMinX() + ((b.getWidth() / 2) - (descWidth / 2)), b.getMinY() - 40, b.getWidth(), 15);
             overlapMetricSelection.resizeRelocate((b.getMinX() + (b.getWidth() / 2)) - ((b.getWidth() + 55) / 2), b.getMinY() - 100, b.getWidth() + 55, 20);
+            snapshotBox.resizeRelocate(impressions.getBoundsInParent().getMaxX() - 100, impressions.getBoundsInParent().getMaxY() + 10, 100, 15);
         });
         
         overlapBarFill = new Rectangle();
@@ -173,9 +179,24 @@ public class CompareImpressionDisplay extends StackPane {
         impressions.getStyleClass().add("compare-impression-display-internal-pane");
         impressions.getChildren().addAll(primaryImpression, compareImpression, secondaryImpression);
         
+        snapshotBox = new HBox();
+        snapshotBox.getStyleClass().addAll("compare-impression-display-metric-buttons");
+        snapshotBox.setManaged(false);
+        Button b = new Button("Take Snapshot");
+        b.setFocusTraversable(false);
+        b.setOnAction(e -> {
+            Image image = SnapshotAssistant.snapshot(impressions, Color.WHITE);
+            Window w = WindowService.getInstance().getSelectedWindow();
+            Window.SNAPSHOT_FUNCTION.accept(w.getWindowID(), new Pair<Image, String>(image, "3-Way Comparison Image"));
+        });
+        b.setPrefWidth(100);
+        b.setPrefHeight(15);
+        snapshotBox.getChildren().add(b);
+        
+        
         addVisiblityHandler();
         
-        getChildren().addAll(overlapMetricSelection, overlapBar, overlapBarFill, overlapBarDesc, impressions);
+        getChildren().addAll(overlapMetricSelection, overlapBar, overlapBarFill, overlapBarDesc, impressions, snapshotBox);
     }
     
     /**

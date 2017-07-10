@@ -6,12 +6,17 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.cortical.fx.webstyle.Impression;
 import io.cortical.iris.message.BusEvent;
 import io.cortical.iris.message.EventBus;
 import io.cortical.iris.message.Payload;
 import io.cortical.iris.persistence.WindowConfig;
 import io.cortical.iris.ui.ContentPane;
 import io.cortical.iris.ui.ControlPane;
+import io.cortical.iris.ui.custom.property.OccurrenceProperty;
 import io.cortical.iris.ui.custom.widget.WindowTitlePane;
 import io.cortical.iris.window.BackPanelSupplier;
 import io.cortical.iris.window.InputWindow;
@@ -61,6 +66,8 @@ import javafx.stage.Stage;
  * </ul>       
  */
 public class WindowService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WindowService.class);
+    
     private static final double DEFAULT_OUTPUT_WINDOW_HEIGHT = 570;
     
     private Stage stage;
@@ -76,6 +83,8 @@ public class WindowService {
     private ReadOnlyObjectWrapper<Window> selectedWindowProperty;
     private ReadOnlyObjectWrapper<WindowConfig> windowConfigProperty;
     private ReadOnlyBooleanWrapper contentPaneCreatedProperty;
+    
+    private OccurrenceProperty snapshotClearanceProperty;
     
     private BooleanProperty compareInfoButtonVisibleProperty = new SimpleBooleanProperty(true);
     
@@ -147,6 +156,15 @@ public class WindowService {
         windowConfigProperty = new ReadOnlyObjectWrapper<>();
         
         contentPaneCreatedProperty = new ReadOnlyBooleanWrapper();
+        
+        snapshotClearanceProperty = new OccurrenceProperty();
+        
+        snapshotClearanceProperty.addListener((v,o,n) -> {
+            LOGGER.debug("Clearing all InputWindow snapshots.");
+            inputWindows.stream()
+                .map(w -> (InputWindow)w)
+                .forEach(w -> w.clearSnapshot());
+        });
     }
     
     /**
@@ -209,6 +227,15 @@ public class WindowService {
      */
     public ReadOnlyBooleanProperty contentCreatedProperty() {
         return contentPaneCreatedProperty.getReadOnlyProperty();
+    }
+    
+    /**
+     * Returns the property that is set following a drag-n-drop operation
+     * involving a Fingerprint {@link Impression}.
+     * @return
+     */
+    public OccurrenceProperty snapshotClearanceProperty() {
+        return snapshotClearanceProperty;
     }
     
     /**

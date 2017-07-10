@@ -1,12 +1,18 @@
 package io.cortical.iris.message;
 
+import java.io.Serializable;
 import java.util.List;
 
 import io.cortical.iris.ui.custom.widget.bubble.Bubble;
 import io.cortical.retina.model.Model;
 import javafx.util.Pair;
 
-public class ClipboardMessage extends Payload {
+public class ClipboardMessage extends Payload implements Serializable{
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    
     private Pair<List<Bubble.Type>, List<String>> content;
     private Model result;
     

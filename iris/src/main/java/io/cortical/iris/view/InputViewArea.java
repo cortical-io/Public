@@ -14,7 +14,9 @@ import io.cortical.iris.message.BusEvent;
 import io.cortical.iris.message.EventBus;
 import io.cortical.iris.message.Payload;
 import io.cortical.iris.persistence.WindowConfig;
+import io.cortical.iris.ui.util.SnapshotAssistant;
 import io.cortical.iris.view.input.expression.ExpressionDisplay;
+import io.cortical.iris.view.input.expression.ExpressionWordBubbleContainer;
 import io.cortical.iris.view.input.text.TextDisplay;
 import io.cortical.iris.window.InputBar;
 import io.cortical.iris.window.InputWindow;
@@ -35,9 +37,14 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import javafx.util.Pair;
+import rx.Observable;
+import rx.Subscriber;
 
 
 /**
@@ -161,11 +168,56 @@ public class InputViewArea extends ViewArea {
     }
     
     /**
+     * Returns an {@link Observable} which produces an image of 
+     * part of the view according to the snapshot criteria.
+     * 
+     * See {@link ExpressionWordBubbleContainer#doDropEntries(List, int)} for
+     * the code site where the snapshot is set on a dropped FingerprintBubble.
+     * 
+     * @return
+     */
+    public Observable<Image> snapshotView() {
+        if(getSelectedViewType() == ViewType.EXPRESSION) {
+            
+            return Observable.create(new Observable.OnSubscribe<Image>() {
+                @Override public void call(Subscriber<? super Image> t) {
+                    Platform.runLater(() -> {
+                        ExpressionWordBubbleContainer target = ((ExpressionDisplay)getSelectedView()).getBubbleContainer();
+                        int editorIndex = target.getEditorIndex();
+                        Node editor = target.getChildren().remove(editorIndex);
+                        
+                        Node node = ((ExpressionDisplay)getSelectedView()).getInputArea();
+                        double aspectRatio = node.getBoundsInParent().getWidth() / node.getBoundsInParent().getHeight();
+                        double targetWidth = 400;
+                        double targetHeight = targetWidth / aspectRatio;
+                        Image image = SnapshotAssistant.snapshot(node, Color.TRANSPARENT, targetWidth, targetHeight, true);
+                        
+                        target.getChildren().add(editorIndex, editor);
+                        
+                        t.onNext(image);
+                    });
+                }
+            });
+        }
+        
+        return null;
+    }
+    
+    /**
      * Returns the type ({@link ViewType}) of the last selected view.
      * @return
      */
     public ViewType getSelectedViewType() {
         return lastSelectedViewType;
+    }
+    
+    /**
+     * Handles any view-specific release of listeners or resources when the
+     * parent window is being closed.
+     */
+    @Override
+    public void releaseResourcesForWindowClose() {
+        ((ExpressionDisplay)getView(ViewType.EXPRESSION)).unsubscribeDelayedClearer();
     }
     
     /**

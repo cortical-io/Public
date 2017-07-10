@@ -1,8 +1,14 @@
 package io.cortical.iris.view.input.expression;
 
+import io.cortical.iris.ApplicationService;
 import io.cortical.iris.WindowService;
+import io.cortical.iris.message.ClipboardMessage;
 import io.cortical.iris.ui.custom.property.OccurrenceProperty;
 import io.cortical.iris.ui.custom.widget.bubble.Bubble;
+import io.cortical.iris.ui.util.DragAssistant;
+import io.cortical.iris.view.InputViewArea;
+import io.cortical.iris.view.ViewType;
+import io.cortical.iris.window.InputWindow;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -20,13 +26,19 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
+import rx.Observable;
+import rx.Observer;
 
 
 public class ExpressionField extends TextField implements Bubble {
     public static final String DEFAULT_PROMPT = "Enter a word or expression";
     
     private static final KeyCombination KEY_DRAG_TRAP = KeyCodeCombination.valueOf("Alt+D");
+    private static final KeyCombination KEY_MENU_ACTIVATE = KeyCodeCombination.valueOf("Alt+M");
     
     private ObjectProperty<Long> emptyFieldProperty = new SimpleObjectProperty<>();
     private ObjectProperty<String> termEntryProperty = new SimpleObjectProperty<>();
@@ -61,7 +73,7 @@ public class ExpressionField extends TextField implements Bubble {
         
         addKeyHandlers();
         addMouseHandler();
-    } 
+    }
     
     /**
      * Returns the property activated when the enter key is pressed 
@@ -70,8 +82,9 @@ public class ExpressionField extends TextField implements Bubble {
      * @return
      */
     public OccurrenceProperty enterKeyPressedProperty() {
-    	return enterKeyPressedProperty;
+        return enterKeyPressedProperty;
     }
+
     
     /**
      * Sets the default prompt text: "Enter a word or expression".
@@ -240,8 +253,10 @@ public class ExpressionField extends TextField implements Bubble {
             if((code.equals(KeyCode.DELETE) || code.equals(KeyCode.BACK_SPACE)) && 
                 getText().trim().length() == 0) {
                 System.out.println("GOT EMPTY AFTER DELETE");
-                emptyFieldProperty.set(System.currentTimeMillis());
-                isEditingProperty.set(false);
+                Platform.runLater(() -> {
+                    emptyFieldProperty.set(System.currentTimeMillis());
+                    isEditingProperty.set(false);
+                });
             } else if(!isNavOrControlOrMetaKey(code)) {
                 isEditingProperty.set(true);
             } 
@@ -253,22 +268,24 @@ public class ExpressionField extends TextField implements Bubble {
             });
         });
         
-        addEventHandler(KeyEvent.KEY_RELEASED, e -> {
-            KeyCode code = lastCode = e.getCode();
-            
-            if(KEY_DRAG_TRAP.match(e)) {
+        addEventFilter(KeyEvent.ANY, e -> {
+            if(KEY_DRAG_TRAP.match(e) || KEY_MENU_ACTIVATE.match(e)) {
                 Platform.runLater(() -> {
                     if(getText() != null && getText().length() > 0) {
-                        if(getText().length() == 1) {
-                            clear();
-                        } else {
-                            setText(getText().substring(0, getText().length() - 1));
-                        }
-                    }                    
+                        setText(getText().replaceAll("∂", ""));
+                        setText(getText().replaceAll("µ", ""));
+                        end();
+                    }  
+                    
+                    requestFocus();
                 });
                 e.consume();
                 return;
             }
+        });
+        
+        addEventHandler(KeyEvent.KEY_RELEASED, e -> {
+            KeyCode code = lastCode = e.getCode();
             
             if(code.equals(KeyCode.DELETE) || code.equals(KeyCode.BACK_SPACE)) {
                 if(getText().trim().length() == 0) {
@@ -305,11 +322,15 @@ public class ExpressionField extends TextField implements Bubble {
         });
     }
     
+    
+    private Observable<ClipboardMessage> subject;
+    
     int i = 0;
     private void addMouseHandler() {
-        final MenuItem paste = new MenuItem("Paste");
+        final MenuItem paste = new MenuItem();
         
         ContextMenu contextMenu = new ContextMenu() {
+            
             @Override public void show(Node anchor, Side side, double dx, double dy) {
                 System.out.println("trapped show(n, ns, dx, dy)");
                 super.show(anchor, side, dx, dy);
@@ -317,17 +338,35 @@ public class ExpressionField extends TextField implements Bubble {
             
             @Override public void show(Node anchor, double screenX, double screenY) {
                 System.out.println("trapped show(n, dx, dy)");
-                paste.setText("Paste " + (i++));
-                super.show(anchor, screenX, screenY);
+                
+                String text = null;
+                if((text = ApplicationService.getInstance().getClipboardContent()) != null) {
+                    Text t = new Text("Paste:\n\n");
+                    t.setFill(Color.WHITE);
+                    Text t2 = new Text(text);
+                    t2.setFill(Color.WHITE);
+                    TextFlow flow = new TextFlow(t, t2);
+                    flow.setMaxWidth(400);
+                    flow.setTextAlignment(TextAlignment.JUSTIFY);
+                    paste.setGraphic(flow);
+                    super.show(anchor, screenX, screenY);
+                            
+                            
+                    System.out.println("clipboard.getString() = " + text);
+                    System.out.println("Got Text: " + text);
+                    
+                    subject = DragAssistant.getClipboardTransformer(text);
+                }
             }
             
             @Override public void hide() {
-                System.out.println("trapped hide()");
-                paste.setText("Working...");
-                (new Thread(() -> {
-                    try { Thread.sleep(3000); }catch(Exception e) { e.printStackTrace(); }
-                    Platform.runLater(() -> {paste.setText("Paste");super.hide();});
-                })).start();
+//                System.out.println("trapped hide()");
+//                paste.setText("Working...");
+//                (new Thread(() -> {
+//                    try { Thread.sleep(3000); }catch(Exception e) { e.printStackTrace(); }
+//                    Platform.runLater(() -> {paste.setText("Paste");super.hide();});
+//                })).start();
+                super.hide();
             }
         };
         
@@ -337,6 +376,16 @@ public class ExpressionField extends TextField implements Bubble {
             @Override
             public void handle(ActionEvent event) {
                 System.out.println("handling paste...");
+                paste.setText("Working...");
+                
+                ExpressionWordBubbleContainer target = 
+                    ((ExpressionDisplay)((InputViewArea)((InputWindow)WindowService.getInstance().windowFor(ExpressionField.this))
+                        .getViewArea()).getView(ViewType.EXPRESSION)).getBubbleContainer();
+                
+                subject.subscribe(DragAssistant.getExpressionDisplayCleanupObserver(null, target));
+                
+                Observer<ClipboardMessage> o = DragAssistant.getClipboardObserver(target);
+                subject.subscribe(o);
             }
         });
         

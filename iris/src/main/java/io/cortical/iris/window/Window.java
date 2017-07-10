@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -56,6 +57,7 @@ import javafx.scene.Parent;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Background;
@@ -80,6 +82,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
+import javafx.util.Pair;
 
 /**
  * A {@code Window} within IRIS is a derivative of {@link Pane} which has 
@@ -108,6 +111,12 @@ public abstract class Window extends Pane implements WindowContext, Persistable 
     public static final Function<Window, EventHandler<ActionEvent>> DELETE_FUNCTION =  w -> e -> {
         Payload p = new Payload(w);
         EventBus.get().broadcast(BusEvent.APPLICATION_WINDOW_DELETE_PROMPT.subj(), p);
+    };
+    /** Function which returns an EventHandler lambda for snapshotting nodes. */
+    public static final BiConsumer<UUID, Pair<Image, String>> SNAPSHOT_FUNCTION =  (uuid, pair) -> {
+        Payload p = new Payload(pair.getKey());
+        p.setDescription(pair.getValue());
+        EventBus.get().broadcast(BusEvent.APPLICATION_NODE_SAVE_SNAPSHOT.subj() + uuid, p);
     };
     
     public enum Type { INPUT, OUTPUT };
@@ -435,6 +444,12 @@ public abstract class Window extends Pane implements WindowContext, Persistable 
         config.addNotificationChainHandler(2, SimilarTermsDisplay.getChainHandler());
         config.addNotificationChainHandler(3, TokensDisplay.getChainHandler());
     }
+    
+    /**
+     * Disconnects listeners and handlers and frees resources
+     * upon this {@code Window} closing.
+     */
+    protected abstract void releaseResourcesForWindowClose();
     
     /**
      * Instructs this {@link Window} to flash its borders
@@ -943,6 +958,9 @@ public abstract class Window extends Pane implements WindowContext, Persistable 
             {
                 this.windowID = UUID.randomUUID();
             }
+            
+            @Override
+            public void releaseResourcesForWindowClose() {}
 
             @Override
             public Region getRegion() {

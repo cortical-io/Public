@@ -26,7 +26,7 @@ import javafx.scene.shape.Line;
  */
 public class Entry<T extends Bubble> extends VBox {
     Line selectionIndicator;
-    Line cursor;
+    Line insertionCursor;
     
     Color selectedColor = Color.rgb(92,183,186);//Color.rgb(235,107,38);
     Color deselectedColor = Color.TRANSPARENT;
@@ -105,19 +105,19 @@ public class Entry<T extends Bubble> extends VBox {
             if(n) field.requestFocus();
         });
         
-        cursor = new Line();
-        cursor.setManaged(false);
-        cursor.setStrokeWidth(2.5);
-        cursor.setStartX(0);
-        cursor.setEndX(0);
-        cursor.setStartY(10);
-        cursor.setEndY(40);
-        cursor.setStroke(Color.rgb(237, 93, 37));
-        cursor.setVisible(false);
+        insertionCursor = new Line();
+        insertionCursor.setManaged(false);
+        insertionCursor.setStrokeWidth(2.5);
+        insertionCursor.setStartX(0);
+        insertionCursor.setEndX(0);
+        insertionCursor.setStartY(10);
+        insertionCursor.setEndY(40);
+        insertionCursor.setStroke(Color.rgb(237, 93, 37));
+        insertionCursor.setVisible(false);
         
-        cursor.visibleProperty().bind(cursorVisibleProperty);
+        insertionCursor.visibleProperty().bind(cursorVisibleProperty);
         
-        getChildren().add(cursor);
+        getChildren().add(insertionCursor);
     }
     
     /**
@@ -128,6 +128,14 @@ public class Entry<T extends Bubble> extends VBox {
         return cursorVisibleProperty;
     }
     
+    public Line getInsertionCursor() {
+        return insertionCursor;
+    }
+    
+    /**
+     * Returns the Line acting as the selection indicator.
+     * @return
+     */
     public Line getSelectionIndicator() {
         return selectionIndicator;
     }

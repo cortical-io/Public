@@ -25,6 +25,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
 import javafx.util.Pair;
 
 /**
@@ -34,7 +35,7 @@ import javafx.util.Pair;
  * @author cogmission
  */
 public class WordBubbleContainer extends FlowPane {
-    protected Map<String, Pair<Term, Color>> queries = new HashMap<>();
+    protected Map<String, Pair<?, Color>> queries = new HashMap<>();
     
     protected int bubbleInsertionIdx = 0;
     protected int focusTraversalIdx = 0;
@@ -75,12 +76,37 @@ public class WordBubbleContainer extends FlowPane {
         return e;
     }
     
+    @SuppressWarnings("unchecked")
     public ChangeListener<? super Boolean> getFingerprintSelectionListener(Entry<FingerprintBubble> e) {
         return (v,o,n) -> {
             e.getBubble().getStyleClass().setAll(n ? "fingerprint-bubble-selected" : "fingerprint-bubble");
+            
+            InputWindow inWindow = (InputWindow)WindowService.getInstance().windowFor(this);
+            UUID inUUUID = inWindow.getWindowID();
+            List<OutputWindow> l = WindowService.getInstance().getConnectedOutputWindows(inUUUID);
+            
+            if(l.isEmpty()) return;
+            
+            OutputWindow w = l.get(0);
+            if(n) {
+                int[] positions = e.getBubble().getPositions();
+                Fingerprint fp = new Fingerprint(positions);
+                queries.put(e.getBubble().getPositionsString(), new Pair<Fingerprint, Color>(fp, Color.rgb(237, 93, 37)));
+                Pair<Fingerprint, Color> pair = new Pair<>(fp, Color.rgb(237, 93, 37));
+                Payload payload = new Payload(pair);
+                EventBus.get().broadcast(BusEvent.FINGERPRINT_DISPLAY_ADD_POSITIONS.subj() + w.getWindowID().toString(), payload);
+            }else{
+                Pair<Fingerprint, Color> cachedPair =(Pair<Fingerprint, Color>)queries.get(e.getBubble().getPositionsString());
+                if(cachedPair == null || cachedPair.getKey() == null) return;
+                
+                Pair<Fingerprint, Color> pair = new Pair<>(cachedPair.getKey(), Color.rgb(237, 93, 37));
+                Payload payload = new Payload(pair);
+                EventBus.get().broadcast(BusEvent.FINGERPRINT_DISPLAY_REMOVE_BY_COLOR.subj() + w.getWindowID().toString(), payload);
+            }
         };
     }
     
+    @SuppressWarnings("unchecked")
     public ChangeListener<? super Boolean> getTermSelectionListener(Entry<WordBubble> e, String term) {
         return (v,o,n) -> {
             
@@ -112,7 +138,7 @@ public class WordBubbleContainer extends FlowPane {
                     EventBus.get().broadcast(BusEvent.FINGERPRINT_DISPLAY_ADD.subj() + w.getWindowID().toString(), payload);
                 });
             }else{
-                Pair<Term, Color> cachedPair = queries.get(term.toLowerCase());
+                Pair<Term, Color> cachedPair = (Pair<Term, Color>)queries.get(term.toLowerCase());
                 if(cachedPair == null || cachedPair.getKey() == null) return;
                 
                 Pair<Fingerprint, Color> pair = new Pair<>(cachedPair.getKey().getFingerprint(), Color.rgb(237, 93, 37));
@@ -226,6 +252,8 @@ public class WordBubbleContainer extends FlowPane {
     protected void selectEntry(int entryIndex) {
         int len = getChildren().size();
         for(int i = 0;i < len;i++) {
+            if(getChildren().get(i) instanceof Polygon) continue;
+            
             ((Entry<?>)getChildren().get(i)).setSelected(i == entryIndex);
         }
         
@@ -238,6 +266,8 @@ public class WordBubbleContainer extends FlowPane {
     protected void deSelectAllEntries() {
         int len = getChildren().size();
         for(int i = 0;i < len;i++) {
+            if(getChildren().get(i) instanceof Polygon) continue;
+            
             ((Entry<?>)getChildren().get(i)).setSelected(false);
         }
     }
@@ -276,10 +306,20 @@ public class WordBubbleContainer extends FlowPane {
     public boolean hasTerms() {
         return (bubbleInsertionIdx) > 0;
     }
+    
+    public Bubble getPrecedingBubble(int index) {
+        if(index == 0) return null;
+        return ((Entry<?>)getChildren().get(index - 1)).getBubble();
+    }
 
     public Bubble getPrecedingBubble() {
-        if(focusTraversalIdx == 0) return null;
+        if(focusTraversalIdx < 1) return null;
         return ((Entry<?>)getChildren().get(focusTraversalIdx - 1)).getBubble();
+    }
+    
+    public Bubble getNextBubble(int index) {
+        if(index >= getChildren().size() - 1) return null;
+        return ((Entry<?>)getChildren().get(index + 1)).getBubble();
     }
 
     public Bubble getNextBubble() {

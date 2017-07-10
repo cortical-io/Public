@@ -223,7 +223,8 @@ public class BubbleExpressionBuilder {
         }
         
         Class<?> clazz = expressionModel.getClass();
-        String modelArrayFieldName = clazz.getSimpleName().substring(0, clazz.getSimpleName().indexOf("Expression")).toLowerCase();
+        String fieldName = clazz.getSimpleName().substring(0, clazz.getSimpleName().indexOf("Expression")).toLowerCase();
+        String modelArrayFieldName = fieldName.equals("sub") ? "not" : fieldName;
         return Arrays.stream(Operator.values()).filter(op -> op.toString().toLowerCase().equals(modelArrayFieldName)).findFirst().orElse(null);
     }
     
@@ -431,6 +432,13 @@ public class BubbleExpressionBuilder {
                 }
                 case FINGERPRINT: {
                     FingerprintBubble fb = new FingerprintBubble(ExpressionModelDeserializer.getIntArray(symbol));
+                    fb.addEventHandler(MouseEvent.ANY, e -> {
+                        if(e.getEventType().equals(MouseEvent.MOUSE_PRESSED) && e.isSecondaryButtonDown()) {
+                            fb.showPopup(e);
+                        } else if(e.getEventType().equals(MouseEvent.MOUSE_RELEASED)) {
+                            fb.hidePopup();
+                        }
+                    });
                     Entry<FingerprintBubble> e = new Entry<>(fb);
                     e.getBubble().selectedProperty().addListener(container.getFingerprintSelectionListener(e));
                     b = e;
@@ -440,7 +448,7 @@ public class BubbleExpressionBuilder {
             
             b.setAlignment(Pos.CENTER);
             b.addEventHandler(KeyEvent.KEY_RELEASED, container.getNavigationKeyListener());
-            b.addEventHandler(KeyEvent.KEY_RELEASED, container.getPunctuationListener());
+            b.addEventHandler(KeyEvent.KEY_RELEASED, container.getControlKeyListener());
             entries.add(b);
         }
         

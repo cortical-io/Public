@@ -21,6 +21,7 @@ import io.cortical.iris.ui.custom.widget.bubble.WordBubble;
 import io.cortical.iris.ui.custom.widget.bubble.WordBubbleContainer;
 import io.cortical.iris.ui.util.DragAssistant;
 import io.cortical.iris.view.MenuRequest;
+import io.cortical.iris.window.InputWindow;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -30,7 +31,9 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -38,6 +41,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -109,7 +113,9 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
     
     private ObjectProperty<Operator> defaultOperatorProperty = new SimpleObjectProperty<>();
     
-    private double result = Double.MAX_VALUE;
+    private List<Polygon> editMarkers = new ArrayList<>();
+    
+    
     private int index = -1;
     
     boolean clear = true;
@@ -188,7 +194,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
      * @return
      */
     public int getEditorIndex() {
-         for(int i = 0;i < getChildren().size();i++) {
+        for(int i = 0;i < getChildren().size();i++) {
             Entry<?> e = (Entry<?>)getChildren().get(i);
             if(e.getBubble().getType() == Type.FIELD) {
                 return i;
@@ -263,7 +269,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
         Entry<ParenthesisBubble> e = new Entry<>(pb);
         e.setAlignment(Pos.CENTER);
         e.addEventHandler(KeyEvent.KEY_RELEASED, getNavigationKeyListener());
-        e.addEventHandler(KeyEvent.KEY_RELEASED, getPunctuationListener());
+        e.addEventHandler(KeyEvent.KEY_RELEASED, getControlKeyListener());
         getChildren().add(focusTraversalIdx, e);
         
         pb.selectedProperty().addListener(getParenthesisSelectionListener(pb, e));
@@ -308,7 +314,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
         Entry<OperatorBubble> e = new Entry<>(ob);
         e.setAlignment(Pos.CENTER);
         e.addEventHandler(KeyEvent.KEY_RELEASED, getNavigationKeyListener());
-        e.addEventHandler(KeyEvent.KEY_RELEASED, getPunctuationListener());
+        e.addEventHandler(KeyEvent.KEY_RELEASED, getControlKeyListener());
         getChildren().add(bubbleInsertionIdx, e);
         
         ob.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent m) -> {
@@ -334,7 +340,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
         Entry<OperatorBubble> e = new Entry<>(ob);
         e.setAlignment(Pos.CENTER);
         e.addEventHandler(KeyEvent.KEY_RELEASED, getNavigationKeyListener());
-        e.addEventHandler(KeyEvent.KEY_RELEASED, getPunctuationListener());
+        e.addEventHandler(KeyEvent.KEY_RELEASED, getControlKeyListener());
         
         ob.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent m) -> {
             // Prevent operator edit if already in edit mode.
@@ -354,7 +360,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
     public Entry<WordBubble> addTerm(String term) {
         Entry<WordBubble> e = super.addTerm(term);
         e.addEventHandler(KeyEvent.KEY_RELEASED, getNavigationKeyListener());
-        e.addEventHandler(KeyEvent.KEY_RELEASED, getPunctuationListener());
+        e.addEventHandler(KeyEvent.KEY_RELEASED, getControlKeyListener());
         e.getBubble().addEventHandler(MouseEvent.MOUSE_CLICKED, getTermDoubleClickListener(e));
         
         incBubbleInsertionIdx();
@@ -370,7 +376,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
     public Entry<WordBubble> createTerm(String term) {
         Entry<WordBubble> e = super.createTerm(term);
         e.addEventHandler(KeyEvent.KEY_RELEASED, getNavigationKeyListener());
-        e.addEventHandler(KeyEvent.KEY_RELEASED, getPunctuationListener());
+        e.addEventHandler(KeyEvent.KEY_RELEASED, getControlKeyListener());
         e.getBubble().addEventHandler(MouseEvent.MOUSE_CLICKED, getTermDoubleClickListener(e));
         
         return e;
@@ -389,7 +395,8 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
         inputField.termEntryProperty().addListener((v,o,n) -> { selectProperPromptText(); });
         inputField.termEntryProperty().addListener(getTermEntryListener());
         inputField.emptyFieldProperty().addListener((v, o, n) -> {
-            // Deletes previous bubble when entry text field is empty
+            // Deletes previous bubble when entry text field is empty and editor at end.
+            // Otherwise deletion is done in getNavigationKeyListener()
             if(getEditorIndex() != getChildren().size() -1) return;
             
             System.out.println("GOT EMPTY FIELD PROPERTY NOTICE: mode = " + mode);
@@ -423,17 +430,8 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
                 Platform.runLater(() -> inputField.sizeForEdit(inputField.getPromptText()));
             }
         });
-        inputField.becomingEmptyProperty().addListener((v,o,n) -> {
-            if(getChildren().size() == 1) {
-                inputField.setDefaultPrompt();
-                inputField.sizeForEdit(ExpressionField.DEFAULT_PROMPT);
-            }else{
-                inputField.useInterimPrompt();
-                inputField.sizeForEdit(inputField.getPromptText());
-            }
-        });
         inputField.addEventHandler(KeyEvent.KEY_RELEASED, getNavigationKeyListener());
-        inputField.addEventHandler(KeyEvent.KEY_RELEASED, getPunctuationListener());
+        inputField.addEventHandler(KeyEvent.KEY_RELEASED, getControlKeyListener());
         
         inputField.addEventFilter(KeyEvent.KEY_TYPED, e -> {
             if(editorInMiddle() && !inputField.isNavOrControlOrMetaKey(e.getCode()) && isRepeatingType(COMPARE_WORD)) {
@@ -483,7 +481,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
                     selectOperatorBubble(null);
                 }
                 
-                getSelectedEntry().requestFocus();
+                Platform.runLater(() -> getExpressionField().requestFocus());
 
                 // Notify listeners that the expression has been changed (i.e. for JSON processing) or sending to server.
                 notifyExpressionChange();
@@ -541,6 +539,8 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
     public void evaluateAllParens() {
         List<Node> children = getChildren();
         for(Node n : children) {
+            if(n instanceof Polygon) continue;
+            
             Entry<?> e = (Entry<?>)n;
             if(e.getBubble().getType().toString().indexOf("PAREN") != -1) {
                 setUnmatched((ParenthesisBubble)e.getBubble());
@@ -669,35 +669,62 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
      * @return
      */
     public int getInsertionIndex(double x, double y) {
-        result = Double.MAX_VALUE;
         index = -1;
         
         ObservableList<Node> ol = getChildren();
         
         IntStream.range(0, ol.size())
             .forEach(i -> {
-                double d = 0;
                 Bounds parent = ol.get(i).getBoundsInParent();
-                if((d = distance(x,y,parent.getMinX(), parent.getMinY() + ((parent.getMaxY() - parent.getMinY()) / 2))) < result - 20) {
-                    result = d;
+                if((x > parent.getMinX() - 4) && x < parent.getMaxX() + 4 && y > parent.getMinY() - 4 && y < parent.getMaxY() + 4) {
                     index = i;
                 }
             });
+        
+        // Indicate an invalid drop zone with "-1"
+        if(index != -1 && !validateDropIndex(index)) {
+            return -1;
+        }
         
         return index;
     }
     
     /**
-     * Quick Pythagorean distance calculation.
+     * Returns true if the index indicates a valid drop 
+     * zone given the known rules, false if not.
      * 
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
-     * @return
+     * @param index
+     * @return  true if the index indicates a valid drop 
+     * zone given the known rules, false if not.
      */
-    private double distance(double x1, double y1, double x2, double y2) {
-        return Math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
+    private boolean validateDropIndex(int index) {
+        if(index == getChildren().size() - 1) return true;
+        
+        Bubble lastInserted = getPrecedingBubble(index);
+        if(lastInserted == null) return true;
+        Bubble.Type type = lastInserted.getType();
+        
+        switch(type) {
+            case RPAREN: {
+                Bubble next = getNextBubble(index);
+                if(next != null && (next.getType() == Bubble.Type.RPAREN || next.getType() == Bubble.Type.LPAREN)) {
+                    return false;
+                }
+                
+                return true;
+            }
+            case FINGERPRINT:
+            case OPERATOR:
+            case WORD: {
+                return true;
+            }
+            case LPAREN: {
+                return false;
+            }
+            default: {
+                return true;
+            }
+        }
     }
     
     /**
@@ -778,6 +805,8 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
      * @param ob    the editor {@link ExpressionField}
      */
     private void displayOperatorChoice(ExpressionField ob) {
+        removeEditMarkers();
+        
         Platform.runLater(() -> {
             Circle c = new Circle(((Circle)radialMenu.getCenterStrokeShape()).getRadius() + 10);
             
@@ -787,7 +816,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
                 Bubble bubble = getPrecedingBubble();
                 Bubble.Type type = bubble == null ? null : bubble.getType();
                 String excludeType = (type == null || type == Bubble.Type.OPERATOR || type == Bubble.Type.LPAREN)  ? "R_PRN" :
-                    (type == Bubble.Type.WORD || type == Bubble.Type.RPAREN) ? "L_PRN" : null;
+                    (type == Bubble.Type.WORD || type == Bubble.Type.FINGERPRINT || type == Bubble.Type.RPAREN) ? "L_PRN" : null;
                 
                 disableParenthesisRadialMenuItems(excludeType);
                 
@@ -814,7 +843,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
                         selectOperatorBubble(entry.getBubble());
                         selectRadialMenuItem(entry.getBubble().getText());
                        
-                        focusTraversalIdx = bubbleInsertionIdx;
+                        setFocusTraversalIndex(getBubbleInsertionIndex());
                         
                         getChildren().add(getChildren().remove(findEditor()));
                         inputField.setInterimPrompt(INTERIM_PROMPT);
@@ -836,7 +865,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
     }
     
     public void doDropEntries(List<Entry<?>> entries, int insertIdx) {
-        Bubble lastInserted = getLastInserted();
+        Bubble lastInserted = getPrecedingBubble(insertIdx);
         Bubble.Type type = null;
         if(lastInserted == null) {
             type = Bubble.Type.OPERATOR;
@@ -849,6 +878,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
             case RPAREN:
             case WORD: {
                 OperatorBubble ob = new OperatorBubble(defaultOperatorProperty.get());
+                setBubbleInsertionIndex(insertIdx);
                 addOperator(ob);
                 doDropEntries(entries, insertIdx + 1);
                 requestLayout();
@@ -867,11 +897,25 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
             }
             case LPAREN:
             case OPERATOR: {
+                setBubbleInsertionIndex(insertIdx);
+                
                 for(int i = 0, j = insertIdx ;i < entries.size();i++, j++) {
-                    getChildren().add(j, entries.get(i));
+                    Entry<?> entry = entries.get(i);
+                    
+                    // Set snapshot image on the FingerprintBubble being dropped
+                    if(entries.size() == 1 && (entry.getBubble() instanceof FingerprintBubble)) {
+                        ((FingerprintBubble)entry.getBubble()).setSourceExpression(
+                            ((InputWindow)WindowService.getInstance().windowFor(this)).getSnapshot());
+                        
+                        WindowService.getInstance().snapshotClearanceProperty().set();
+                    }
+                    
+                    getChildren().add(j, entry);
                     requestLayout();
                     incBubbleInsertionIdx();
                 }
+                
+                setFocusTraversalIndex(getBubbleInsertionIndex());
                 
                 break;
             }
@@ -897,6 +941,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
         }
         
         switch(type) {
+            case FINGERPRINT:
             case RPAREN:
             case WORD: {
                 OperatorBubble ob = new OperatorBubble(defaultOperatorProperty.get());
@@ -1074,6 +1119,8 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
     private int findEditor() {
         int len = getChildren().size();
         for(int i = 0;i < len;i++) {
+            if(getChildren().get(i) instanceof Polygon) continue;
+            
             if(((Entry<?>)getChildren().get(i)).getBubble() instanceof ExpressionField) {
                 return i;
             }
@@ -1086,7 +1133,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
      * at the specified index between bubbles.
      * @param focusIndex    the index at which the editor is to be inserted.
      */
-    private void selectGap(int focusIndex) {
+    public void selectGap(int focusIndex) {
         deSelectAllEntries();
         
         // Return if already at end since editor is properly located.
@@ -1158,7 +1205,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
         edit.editor.setSelected(true);
         edit.entry.setSelected(false);
         ((ExpressionField)edit.editor.getBubble()).requestFocus();
-        focusTraversalIdx = bubbleInsertionIdx;
+        setFocusTraversalIndex(getBubbleInsertionIndex());
         setMode(Mode.ENTRY);
         currentEdit = null;
     }
@@ -1175,9 +1222,12 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
      * Returns editor location and prompts to their default state.
      */
     public void setDefaultState() {
-        Entry<?> editor = (Entry<?>)getChildren().remove(findEditor());
+        int editorIndex = findEditor();
+        if(editorIndex == -1) return;
+        
+        Entry<?> editor = (Entry<?>)getChildren().remove(editorIndex);
         getChildren().add(editor);
-        bubbleInsertionIdx = getChildren().size() - 1;
+        setBubbleInsertionIndex(getChildren().size() - 1);
         inputField.setInterimPrompt(INTERIM_PROMPT);
         selectProperPromptText();
     }
@@ -1189,8 +1239,8 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
         Entry<?> editor = (Entry<?>)getChildren().remove(findEditor());
         getChildren().clear();
         getChildren().add(editor);
-        bubbleInsertionIdx = getChildren().size() - 1;
-        focusTraversalIdx = bubbleInsertionIdx;
+        setBubbleInsertionIndex(getChildren().size() - 1);
+        setFocusTraversalIndex(getChildren().size() - 1);
         setMode(Mode.ENTRY);
         inputField.setInterimPrompt(INTERIM_PROMPT);
         selectProperPromptText();
@@ -1286,17 +1336,29 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
                     break;
                 }
                 case WORD: {
-                    beginEditEntry(n);
+                    if(hasRandomEdits() && getRandomEditLocations().get(0) == focusTraversalIdx) {
+                        displayOperatorChoice(inputField);
+                    } else {     
+                        beginEditEntry(n);
+                    }
+                    
                     break;
                 }
+                case FINGERPRINT:
                 case FIELD: {
                     if(editorSelected()) {
-                        if(currentEdit != null || (hasRandomEdits() && getNextBubble().getType() == Bubble.Type.OPERATOR)) {
+                        boolean hasRandomEdits = hasRandomEdits();
+                        if(currentEdit != null || 
+                            (hasRandomEdits && !hasRandomEditMarkers() && getNextBubble().getType() == Bubble.Type.OPERATOR) ||  
+                            (hasRandomEdits && isWordInsertionPoint(getChildren().indexOf(n)))
+                            ) {
                             return;
                         }
-                        displayOperatorChoice((ExpressionField)bubble);
-                        break;
+                        setBubbleInsertionIndex(getChildren().indexOf(inputEntry));
+                        setFocusTraversalIndex(getBubbleInsertionIndex());
+                        displayOperatorChoice(inputField);
                     }
+                    break;
                 }
                 case LPAREN:
                 case RPAREN: {
@@ -1312,6 +1374,16 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
                 default : break;
             }
         };
+    }
+    
+    private boolean isWordInsertionPoint(int index) {
+        FilteredBubbleList children = getFilteredBubbleList(getChildrenUnmodifiable());
+        Bubble.Type precedingType = null;
+        if(index > 0) {
+            precedingType = ((Bubble)children.get(index - 1)).getType();
+        }
+        
+        return (precedingType == null || precedingType == Bubble.Type.OPERATOR || precedingType == Bubble.Type.LPAREN);
     }
     
     /**
@@ -1344,7 +1416,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
                                 text.indexOf("L") != -1 ? Operator.L_PRN : Operator.R_PRN)); 
                     }
                     
-                    Platform.runLater(() -> { getSelectedEntry().requestFocus(); System.out.println("entry = " + getSelectedEntry().getBubble().getType()); });
+                    Platform.runLater(() -> { getExpressionField().requestFocus(); System.out.println("entry = " + getSelectedEntry().getBubble().getType()); });
                     
                     //typeEnter();
                 }else if(code.equals(KeyCode.ESCAPE)) {
@@ -1387,6 +1459,16 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
         }
         selectEntry(focusTraversalIdx);
         editorInGap = focusTraversalIdx == getChildren().size() - 1;
+    }
+    
+    public void typeEscape() {
+        System.out.println("Type Escape: " + operatorMenuShowing());
+        radialMenu.requestFocus();
+        Platform.runLater(() -> {
+            FXRobot robot = FXRobotFactory.createRobot(getScene());
+            robot.keyPress(KeyCode.ESCAPE);
+            robot.keyRelease(KeyCode.ESCAPE);
+        });
     }
     
     public void typeEnter() {
@@ -1442,7 +1524,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
         
         clear = false;
         
-        focusTraversalIdx = index;
+        setFocusTraversalIndex(index);
         selectGap(focusTraversalIdx);
         if(focusAtEnd()) {
             inputField.setInterimPrompt(INTERIM_PROMPT);
@@ -1497,7 +1579,18 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
                     }
                     inputField.isEditingProperty().set(false);
                 }else if(KEY_BACKSPACE.match(e) || KEY_DELETE.match(e)) {
-                    if(focusAtEnd() || !hasTerms() || mode == Mode.EDIT || inputField.isEditingProperty().get()) return;
+                    evaluateAllParens();
+                    
+                    if(focusAtEnd() || !hasTerms() || mode == Mode.EDIT || inputField.isEditingProperty().get()) {
+                        System.out.println("RETURNING DUE TO CATCH OF FLAGS");
+                        System.out.println("\t 1 = " + focusAtEnd());
+                        System.out.println("\t 2 = " + (!hasTerms()));
+                        System.out.println("\t 3 = " + (mode == Mode.EDIT));
+                        System.out.println("\t 4 = " + (inputField.isEditingProperty().get()));
+                        return;
+                    }else{
+                        System.out.println("IN ELSE, NOT RETURNING DUE TO CATCH OF FLAGS");
+                    }
                     
                     if(focusTraversalIdx == findEditor()) {
                         decFocusTraversalIdx();
@@ -1512,7 +1605,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
                         shiftTab();
                     }
                     
-                    boolean hasRandomEdits = checkRandomEditMode();
+                    boolean hasRandomEdits = checkRandomEditMode(false);
                     if(hasRandomEdits) {
                         invalidStateProperty.set();
                     }
@@ -1539,10 +1632,13 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
      * there may still be unmatched parenthesis, but that state is
      * handled elsewhere).
      * 
+     * @param   includeParens   if false the positions of parenthesis will be
+     *                          skipped over.
+     * 
      * @return  flag indicating whether random edit locations exist,
      *          true if so, false if not.
      */
-    public boolean checkRandomEditMode() {
+    public boolean checkRandomEditMode(boolean includeParens) {
         List<Integer> randomEdits = new ArrayList<>();
         
         Bubble.Type lastType = null;
@@ -1552,10 +1648,21 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
         int len = children.size();
         for(int i = 0;i < len;i++) {
             Bubble.Type type = ((Bubble)children.get(i)).getType();
-            if(type == Bubble.Type.FIELD || type  == Bubble.Type.LPAREN || type == Bubble.Type.RPAREN) {
+            
+            // FINGERPRINT and WORD are logically the same so set it the same to ease logic.
+            if(type == Bubble.Type.FINGERPRINT) type = Bubble.Type.WORD;
+            
+            if(type == Bubble.Type.FIELD) {
                 continue;
             }
-            if(type == lastType || (i == 0 && type == Bubble.Type.OPERATOR)) {
+            
+            if(type == lastType || 
+                (i == 0 && type == Bubble.Type.OPERATOR) || 
+                (isLeftParen(type) && lastType == Bubble.Type.WORD) ||
+                (isRightParen(type) && lastType == Bubble.Type.OPERATOR) ||
+                (type == Bubble.Type.OPERATOR && isLeftParen(lastType)) ||
+                (type == Bubble.Type.WORD && isRightParen(lastType))) {
+                
                 randomEdits.add(i);
             }
             
@@ -1564,7 +1671,39 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
         
         randomEditLocations = randomEdits;
         
+        evaluateAllParens();
+        
         return !randomEditLocations.isEmpty();
+    }
+    
+    /**
+     * Returns a flag indicating whether the type specified
+     * is a left parenthesis or not.
+     * @param type
+     * @return
+     */
+    private boolean isLeftParen(Bubble.Type type) {
+        return (type  == Bubble.Type.LPAREN);
+    }
+    
+    /**
+     * Returns a flag indicating whether the type specified
+     * is a right parenthesis or not.
+     * @param type
+     * @return
+     */
+    private boolean isRightParen(Bubble.Type type) {
+        return (type == Bubble.Type.RPAREN);
+    }
+    
+    /**
+     * Return the list of locations where bubbles occur in an
+     * illegal sequence.
+     * 
+     * @return
+     */
+    public List<Integer> getRandomEditLocations() {
+        return randomEditLocations;
     }
     
     /**
@@ -1574,7 +1713,77 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
      * @return
      */
     public boolean hasRandomEdits() {
-        return checkRandomEditMode();
+        return checkRandomEditMode(false);
+    }
+    
+    /**
+     * Removes the red edit markers from the view's children list.
+     */
+    public void removeEditMarkers() {
+        getChildren().removeAll(editMarkers);
+        editMarkers.clear();
+    }
+    
+    /**
+     * Adds visual indicators of illegal syntax areas sequences
+     * in a given expression.
+     * 
+     * @param locations
+     */
+    public void addRandomEditMarkers(List<Integer> locations) {
+        if(hasRandomEditMarkers()) {
+            return;
+        }
+        
+        Polygon up1 = new Polygon();
+        up1.getPoints().addAll(new Double[] {
+           0.0, 0.0, 
+           10.0, 0.0,
+           5.0, 10.0
+        });
+        up1.setStyle("-fx-fill: crimson");
+        
+        up1.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> {
+            getScene().setCursor(Cursor.HAND);
+        });
+        
+        up1.addEventHandler(MouseEvent.MOUSE_EXITED, e -> {
+            getScene().setCursor(Cursor.DEFAULT);
+        });
+        
+        Bubble.Type typeAtIndex = getFilteredBubbleList(getChildren()).get(locations.get(0)).getType();
+        if(typeAtIndex == Bubble.Type.WORD || typeAtIndex == Bubble.Type.FINGERPRINT) {
+            Tooltip tip = new Tooltip("Missing Operator\nPress <control> to select an operator.");
+            tip.setStyle("-fx-background-color: rgb(200, 0, 0, 0.5); -fx-font-size: 12;");
+            Tooltip.install(up1, tip);
+        }else{
+            Tooltip tip = new Tooltip("Missing Term\nPress <control> to select an operator.");
+            tip.setStyle("-fx-background-color: rgb(200, 0, 0, 0.5); -fx-font-size: 12;");
+            Tooltip.install(up1, tip);
+        }
+        
+        up1.setFocusTraversable(false);
+        up1.setManaged(false);
+        
+        Entry<?> e = (Entry<?>)getChildren().get(locations.get(0));
+        Bounds b = e.getBoundsInParent();
+        up1.relocate(b.getMinX() - 1.5, b.getMinY());
+        
+        getChildren().add(up1);
+        editMarkers.add(up1);
+        
+        setFocusTraversalIndex(getChildren().indexOf(up1));
+    }
+    
+    /**
+     * Returns a flag indicating whether markers were 
+     * created during the last check for illegal 
+     * sequence areas.
+     * 
+     * @return  true if so, false if not
+     */
+    public boolean hasRandomEditMarkers() {
+        return !editMarkers.isEmpty();
     }
     
     /**
@@ -1584,6 +1793,7 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
      */
     FilteredBubbleList getFilteredBubbleList(ObservableList<? extends Node> l) {
         return l.stream()
+            .filter(o -> !(o instanceof Polygon))
             .map(e -> (Bubble)((Entry<?>)e).getBubble())
             .filter(e -> e.getType() != Bubble.Type.FIELD)
             .collect(new FilteredListCollector());
@@ -1593,8 +1803,10 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
      * Returns the control key radial menu trigger.
      * @return
      */
-    public EventHandler<KeyEvent> getPunctuationListener() {
+    public EventHandler<KeyEvent> getControlKeyListener() {
         return e -> {
+            if(focusTraversalIdx < 1) return;
+            
             if(e.getCode() == KeyCode.CONTROL) {
                 selectionIndicatorProperty.set((Entry<?>)getChildren().get(focusTraversalIdx));
                 selectionIndicatorProperty.set(null);
@@ -1614,7 +1826,8 @@ public class ExpressionWordBubbleContainer extends WordBubbleContainer {
                 if(mode == Mode.EDIT) return;
                 
                 setDefaultState();
-                selectEntry(focusTraversalIdx = getChildren().indexOf(entry));
+                setFocusTraversalIndex(getChildren().indexOf(entry));
+                selectEntry(focusTraversalIdx);
                 editorInGap = focusTraversalIdx == getChildren().size() - 1;
                 selectionIndicatorProperty.set((Entry<?>)getChildren().get(focusTraversalIdx));
                 System.out.println("set selection to: " + focusTraversalIdx);

@@ -101,6 +101,14 @@ public class FingerprintDisplay extends LabelledRadiusPane implements View {
     }
     
     /**
+     * Returns this {@code FingerprintDisplay}'s {@link Impression}
+     * @return
+     */
+    public Impression getImpression() {
+        return impression;
+    }
+    
+    /**
      * Implemented by {@code View} subclasses to handle an error
      * 
      * @param	context		the error information container
@@ -366,6 +374,10 @@ public class FingerprintDisplay extends LabelledRadiusPane implements View {
             if(pair.getKey().getPositions() == null) return;
             
             removeSDRByColor(pair.getKey().getPositions(), pair.getValue());
+        });
+        EventBus.get().subscribeTo(Pattern.compile(BusEvent.FINGERPRINT_DISPLAY_ADD_POSITIONS.subj() + uuid.toString()), (topic, p) -> {
+            Pair<Fingerprint, Color> pair = (Pair<Fingerprint, Color>)p.getPayload();
+            addSDR(pair.getKey().getPositions(), pair.getValue());
         });
         
         // Adds the command queue handler invoked when the screen becomes visible.

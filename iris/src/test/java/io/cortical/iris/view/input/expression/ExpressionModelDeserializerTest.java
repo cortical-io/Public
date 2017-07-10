@@ -9,8 +9,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import io.cortical.retina.model.ExpressionFactory.ExpressionModel;
 import io.cortical.iris.view.input.expression.ExpressionModelDeserializer.IndexType;
+import io.cortical.retina.model.ExpressionFactory.ExpressionModel;
 import io.cortical.retina.model.Fingerprint;
 import io.cortical.retina.model.Model;
 import io.cortical.retina.model.Term;
@@ -88,8 +88,7 @@ public class ExpressionModelDeserializerTest {
                 "\t} ]\n" +
               "}\n";
     
-    @SuppressWarnings("unused")
-	private String nestedExpressionString = 
+    private String nestedExpressionString = 
         "{" +
                 "\"sub\" : [" +
                         "{" +
@@ -235,6 +234,14 @@ public class ExpressionModelDeserializerTest {
         try {
             model = ExpressionModelDeserializer.narrow(positionsString);
             assertEquals(Fingerprint.class, model.getClass());
+        }catch(Exception e) {
+            fail();
+        }
+        
+        // Nested complex
+        try {
+            model = ExpressionModelDeserializer.narrow(nestedExpressionString);
+            assertTrue(ExpressionModel.class.isAssignableFrom(model.getClass()));
         }catch(Exception e) {
             fail();
         }

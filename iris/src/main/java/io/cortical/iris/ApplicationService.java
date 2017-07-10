@@ -1,6 +1,9 @@
 package io.cortical.iris;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +15,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
+
+import javax.imageio.ImageIO;
 
 import org.bushe.swing.event.EventServiceExistsException;
 import org.bushe.swing.event.EventServiceLocator;
@@ -40,9 +45,11 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -114,6 +121,7 @@ public class ApplicationService extends SecurityManager {
         
         EventBus.get().subscribeTo(Pattern.compile(BusEvent.APPLICATION_WINDOW_SAVE_PROMPT.subj() + "[\\w\\-]+"), getWindowConfigPersistenceHandler(true));
         EventBus.get().subscribeTo(Pattern.compile(BusEvent.APPLICATION_WINDOW_LOAD_PROMPT.subj() + "[\\w\\-]+"), getWindowConfigPersistenceHandler(false));
+        EventBus.get().subscribeTo(Pattern.compile(BusEvent.APPLICATION_NODE_SAVE_SNAPSHOT.subj() + "[\\w\\-]+"), getSnapshotPersistenceHandler());
         EventBus.get().subscribeTo(BusEvent.APPLICATION_WINDOW_DELETE_PROMPT.subj(), getOutputConfigDeletionHandler());
         
         executor = Executors.newFixedThreadPool(DEFAULT_THREADPOOL_SIZE, new DaemonThreadFactory());
@@ -622,6 +630,53 @@ public class ApplicationService extends SecurityManager {
             } else {
                 LOGGER.debug("Persistence Handler got a null filename - no action is invoked!");
             }
+        };
+    }
+    
+    /**
+     * Handler which manages prompting the user for a filename and then
+     * saving the image file as a png.
+     * 
+     * @return
+     */
+    private EventTopicSubscriber<Payload> getSnapshotPersistenceHandler() {
+        return (messageString, requestPayload) -> {
+            String route = messageString.substring(messageString.indexOf("_") + 1);
+            Window w = WindowService.getInstance().windowFor(UUID.fromString(route));
+            String description = requestPayload.getDescription();
+            Image image = (Image)requestPayload.getPayload();
+            
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save " + description);
+            File f = new File(System.getProperty("user.home"));
+            fileChooser.setInitialDirectory(f);
+            fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Save " + description + " .png image", "*.png")
+            );
+            
+            File selectedFile = fileChooser.showSaveDialog(w.getScene().getWindow());
+            
+            if(selectedFile == null) {
+                LOGGER.debug("User selected \"Cancel\" and/or file was null, not saving snapshot.");
+                return;
+            }
+            
+            // save image (without alpha)
+            BufferedImage bufImageARGB = SwingFXUtils.fromFXImage(image, null);
+            BufferedImage bufImageRGB = new BufferedImage(bufImageARGB.getWidth(), bufImageARGB.getHeight(), BufferedImage.OPAQUE);
+
+            Graphics2D graphics = bufImageRGB.createGraphics();
+            graphics.drawImage(bufImageARGB, 0, 0, null);
+
+            try {
+                ImageIO.write(bufImageRGB, "png", selectedFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            graphics.dispose();
+
+            LOGGER.debug("Image saved: " + selectedFile.getName());
         };
     }
     

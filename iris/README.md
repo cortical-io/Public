@@ -22,7 +22,7 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 
 ### Mac OSX
 
-[Download Iris dmg installer (for macosx)](http://metaware.us/iris/Iris-1.0.10-installer.dmg) 
+[Download Iris dmg installer (for macosx)]() 
 
 **NOTE:** 
 
@@ -36,7 +36,7 @@ Also **NOTE:**
 
 ### Windows & Linux
 
-[Download Iris "clickable" Jar File](http://metaware.us/iris/iris-1.0.10-all.jar)
+[Download Iris "clickable" Jar File]()
 - **NOTE:** _Requires Java 8 installation_ - to get Java 8, Select [**"Free Java Download"**](https://www.java.com/en/download/) on the linked Oracle site.
 
 **To Run:**
@@ -48,7 +48,7 @@ Simply Double-Click on the ".jar" file...
 execute:
 
 ```
-> java -jar iris-1.0.10-all.jar
+> java -jar iris-1.0.xx-all.jar
 ```
 ...on the command line.
 

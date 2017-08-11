@@ -5,10 +5,14 @@
 /build
 /doc
 /deploy
+/.settings
 deploy.sh
 .idea/
 *.iml
 .gradle
+.classpath
+.DS_Store
+.project
 .settings
 /target
 /package

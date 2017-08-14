@@ -10,6 +10,8 @@
 <br><br>
 A custom **JavaFX** application allowing rigorous experimentation and examination of the Cortical.io Retina APIs. In addition, this application serves as a reference implementation for users wishing to write applications which access the Retina.
 
+####[On YouTube](https://www.youtube.com/watch?v=CsF4pd7fGF0)
+
 <br>
 
 ---
@@ -55,6 +57,8 @@ execute:
 ---
 
 ### Usage:  [![alt text](http://metaware.us/iris/images/info.png "Info Icon")](http://metaware.us/iris/images/iris_window.png)
+
+See the [Quick Start Tutorial!](https://www.youtube.com/watch?v=CsF4pd7fGF0)
 
 <sub>_The application will prompt for an API Key, which IRIS will guide you to do. Just click on the "Get API" button, and copy the API Key into IRIS once obtained._</sub>
 

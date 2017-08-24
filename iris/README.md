@@ -76,7 +76,9 @@ In general, using IRIS requires opening "Input Windows" and "Output Windows", an
 
 ---
 
-### "Expressions" Tab
+### General Usage Tips
+
+**Expressions Tab**
 
 1. Don't enter in any "operators" (i.e. AND, OR, XOR etc.) 
 2. Just enter word after word and in-between the UI will prompt for the operators... 
@@ -86,3 +88,9 @@ In general, using IRIS requires opening "Input Windows" and "Output Windows", an
 
 * In general, use the arrow keys to move the cursor in-between the terms, and "tab/shift-tab" to move to each term.
 * Use the **"ctrl"** key to select words or enter parenthesis between words once the cursor is moved.
+
+---
+
+### Feedback and Issue Tracking
+
+[Please leave us](https://cortical-io.uservoice.com/) your comments, questions and any issues you find! We're very grateful for your feedback!

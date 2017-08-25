@@ -16,17 +16,15 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 
 ---
 
-<sub><sup>
-**Table of Contents** 
+<sub>sup>**Table of Contents** 
+ 
 * [Installation](#installation-version-10)
   * [Mac OSX](#mac-osx)
   * [Windows & Linux](#windows--linux) 
 * [Usage](#usage--)
 * [Downloadable User Guide](#downloadable-user-guide-version-10)
 * [General Usage Tips](#general-usage-tips)
-* [Feedback and Issue Tracking](#feedback-and-issue-tracking)
-
-</sup></sub>
+* [Feedback and Issue Tracking](#feedback-and-issue-tracking)</sup></sub>
 
 ---
 

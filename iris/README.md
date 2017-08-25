@@ -13,6 +13,8 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 #### [Quick Start Tutorial](https://www.youtube.com/watch?v=CsF4pd7fGF0)
 
 <br>
+**Table of Contents**
+[Installation-Version-1.0:][3]
 
 ---
 

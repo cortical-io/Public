@@ -16,7 +16,7 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 
 **Table of Contents** 
 
-* [Installation Version 1.0](#Installation-Version-1.0)
+* [Installation Version 1.0](#Installation-Version-10)
 
 ---
 

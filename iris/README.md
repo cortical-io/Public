@@ -26,6 +26,7 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 * [Downloadable User Guide](#downloadable-user-guide-version-10)
 * [General Usage Tips](#general-usage-tips)
 * [Feedback and Issue Tracking](#feedback-and-issue-tracking)
+
 </sup></sub>
 
 ---

@@ -18,7 +18,7 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 
 **Table of Contents** 
 
-* [Installation Version 1.0](#installation-version-10)
+* [Installation](#installation-version-10)
   * [Mac OSX](#mac-osx)
   * [Windows & Linux](#windows--linux) 
 * [Usage](#usage--)

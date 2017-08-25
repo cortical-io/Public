@@ -21,13 +21,13 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 </sup></sub>
 
 <sub><sup>* [Installation](#installation-version-10)</sub></sup>
-  * [Mac OSX](#mac-osx)
-  * [Windows & Linux](#windows--linux) 
-* [Usage](#usage--)
-* [Downloadable User Guide](#downloadable-user-guide-version-10)
-* [General Usage Tips](#general-usage-tips)
-* [Feedback and Issue Tracking](#feedback-and-issue-tracking)
- </sub></sup>
+  <sub><sup>* [Mac OSX](#mac-osx)</sub></sup>
+  <sub><sup>* [Windows & Linux](#windows--linux) </sub></sup>
+<sub><sup>* [Usage](#usage--)</sub></sup>
+<sub><sup>* [Downloadable User Guide](#downloadable-user-guide-version-10)</sub></sup>
+<sub><sup>* [General Usage Tips](#general-usage-tips)</sub></sup>
+<sub><sup>* [Feedback and Issue Tracking](#feedback-and-issue-tracking)</sub></sup>
+ 
 ---
 
 <br>

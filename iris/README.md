@@ -10,7 +10,7 @@
 <br><br>
 A custom **JavaFX** application allowing rigorous experimentation and examination of the Cortical.io Retina APIs. In addition, this application serves as a reference implementation for users wishing to write applications which access the Retina.
 
-#### [Quick Start Tutorial](https://www.youtube.com/watch?v=CsF4pd7fGF0)
+#### [Quick Start Tutorial](https://www.youtube.com/watch?v=CsF4pd7fGF0){:target="_blank"} 
 
 <br> 
 
@@ -36,7 +36,7 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 
 ### Mac OSX
 
-[Download Iris dmg installer (for macosx)](http://metaware.us/iris/Iris-1.0.11-installer.dmg){:target="_blank"} 
+[Download Iris dmg installer (for macosx)](http://metaware.us/iris/Iris-1.0.11-installer.dmg)
 
 **NOTE:** 
 

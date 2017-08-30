@@ -36,7 +36,7 @@ A custom **JavaFX** application allowing rigorous experimentation and examinatio
 
 ### Mac OSX
 
-[Download Iris dmg installer (for macosx)](http://metaware.us/iris/Iris-1.0.11-installer.dmg) 
+[Download Iris dmg installer (for macosx)](http://metaware.us/iris/Iris-1.0.11-installer.dmg){:target="_blank"} 
 
 **NOTE:** 
 

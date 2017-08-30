@@ -10,7 +10,7 @@
 <br><br>
 A custom **JavaFX** application allowing rigorous experimentation and examination of the Cortical.io Retina APIs. In addition, this application serves as a reference implementation for users wishing to write applications which access the Retina.
 
-#### <a href="https://www.youtube.com/watch?v=CsF4pd7fGF0" target="_blank">Quick Start Tutorial</a>
+#### [Quick Start Tutorial](https://www.youtube.com/watch?v=CsF4pd7fGF0)
 
 <br> 
 

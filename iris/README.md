@@ -3,16 +3,26 @@
 <A href="http://metaware.us/iris/images/iris_window.png"><img src="http://metaware.us/images/iris_black_font_smaller.png" alt="Iris"></A>
 </p>
 
-<p align="center">
-<b><i>...a specialized view into the Cortical.io Retina API</i></b>
-</p>
+***iris*** analyzes the meaning of text and provides insights into how Cortical.io Retina technology can be applied to text-data comparison and information extraction. This free tool is also an example of an application that integrates with the Retina API.
 
-<br><br>
-A custom **JavaFX** application allowing rigorous experimentation and examination of the Cortical.io Retina APIs. In addition, this application serves as a reference implementation for users wishing to write applications which access the Retina.
+<br>
+In iris, you can:
 
-#### [Quick Start Tutorial](https://www.youtube.com/watch?v=CsF4pd7fGF0)
+* Input text and examine how the meaning of the text is encoded as a semantic fingerprint
+* Refine or broaden text with Boolean expressions and view the resulting changes to the encoded meaning
+* Compare text in eight languages and measure the similarity of meaning between different pieces of text
+* Identify different contexts in which terms are used and automatically generate lists of similar terms
+* Extract keywords from text
+
+<br>
+<i>Related topics</i>
+
+* Retina technology: www.cortical.io/technology
+* Retina API: www.cortical.io/product_retina_api
 
 <br> 
+
+[_Quick Start Tutorial_](https://www.youtube.com/watch?v=CsF4pd7fGF0)
 
 ---
 

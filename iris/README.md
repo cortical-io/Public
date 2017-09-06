@@ -8,7 +8,7 @@
 <br>
 In iris, you can:
 
-<br>
+<br> 
 
 * Input text and examine how the meaning of the text is encoded as a semantic fingerprint
 * Refine or broaden text with Boolean expressions and view the resulting changes to the encoded meaning
@@ -19,7 +19,7 @@ In iris, you can:
 <br>
 <i>Related topics</i>
 
-<br>
+<br> 
 
 * Retina technology: www.cortical.io/technology
 * Retina API: www.cortical.io/product_retina_api

@@ -6,7 +6,7 @@ This is the public repository of [Cortical.io](http://www.cortical.io/).
 You will find the following items on this repository:
 
 <UL>
-<LI><B><A href="https://github.com/cortical-io/Public/tree/master/iris">IRIS:</A></B> A new, fun to use, interactive Retina API Demo using the power of JavaFX!</LI>
+<LI><B><A href="https://github.com/cortical-io/Public/tree/master/iris">IRIS:</A></B> A free tool for the semantic analysis of text.</LI>
 </UL>
 
 <UL>

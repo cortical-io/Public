@@ -76,7 +76,7 @@ Simply Double-Click on the ".jar" file...
 execute:
 
 ```
-> java -jar iris-1.0.xx-all.jar
+> java -jar iris-v1.xx-all.jar
 ```
 ...on the command line.
 

@@ -40,4 +40,6 @@ the don't have to be re-specified on every start up.
 * Added new deployment installer image and executable jar.
 * Link to newly updated "User Guide"
 #### Changed  
+* README.md landing page to reflect new deployment version number.
+* Links to new installer versions on README.md
 #### Fixed

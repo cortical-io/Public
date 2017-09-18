@@ -38,5 +38,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 the don't have to be re-specified on every start up.
 * Endpoint URL's are now explicitly and extensively checked for connection viability for each URL during startup to guarantee configuration is "sane".
 * Added new deployment installer image and executable jar.
+* Link to newly updated "User Guide"
 #### Changed  
 #### Fixed

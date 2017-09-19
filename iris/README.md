@@ -44,7 +44,7 @@ In iris, you can:
 
 <br>
 
-# Installation Version 1.0:
+# Installation Version 1.1:
 
 <br>
 
@@ -97,7 +97,7 @@ In general, using IRIS requires opening "Input Windows" and "Output Windows", an
 
 ---
 
-### Downloadable User Guide (version 1.0)
+### Downloadable User Guide (version 1.1)
 [Download the IRIS User Guide in *.pdf format](http://metaware.us/iris/docs/Cortical.io_iris_user_guide_LETTER_20170907.pdf)
 
 ---

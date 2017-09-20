@@ -13,6 +13,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ***
 
+# Release History (For Details See Version Changes Below)
+* [v1.1] - Configuration from Properties File
+* [v1.0] - Drag-n-Drop of Fingerprints; Bubbles (terms), Contexts; Copy/Paste JSON; Freehand Expression Syntax
+* [v0.9] - Pre-production
+
+***
+
 ## Unreleased [v1.2-SNAPSHOT]
 #### Removed
 #### Added

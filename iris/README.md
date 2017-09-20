@@ -39,7 +39,7 @@ In iris, you can:
 * [Downloadable User Guide](#downloadable-user-guide-version-10)
 * [General Usage Tips](#general-usage-tips)
 * [Feedback and Issue Tracking](#feedback-and-issue-tracking)
-* [Release History](https://github.com/cortical-io/Public/blob/master/iris/CHANGELOG.md) - (View changes for each version)
+* [Change Log](https://github.com/cortical-io/Public/blob/master/iris/CHANGELOG.md)
  
 ---
 

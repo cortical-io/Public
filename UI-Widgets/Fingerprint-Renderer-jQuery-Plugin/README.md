@@ -41,72 +41,137 @@ available options are:
 		</tr>
 	</thead>
 	<tbody>
-	<tr>
-		<td>backgroundColor</td>
-		<td>CSS color value</td>
-		<td>#FFFFFF</td>
-		<td>Background color of the fingerprint (if not transparent).</td>
-	</tr>
-	<tr>
-        	<td>bitColor</td>
-        	<td>CSS color value</td>
-        	<td>#005570</td>
-        	<td>Color used for active bits in the fingerprint.</td>
+		<tr>
+			<td>backgroundColor</td>
+			<td>CSS color value</td>
+			<td>#FFFFFF</td>
+			<td>Background color of the fingerprint (if not transparent).</td>
+		</tr>
+		<tr>
+			<td>bitColor</td>
+			<td>CSS color value</td>
+			<td>#005570</td>
+			<td>Color used for active bits in the fingerprint.</td>
+		</tr>
+		<tr>
+			<td>clusters</td>
+			<td>Array</td>
+			<td>[]</td>
+			<td>Collection of clusters to render. Each cluster is defined as an object with the following
+				properties: {x: Number, y: Number, radius: Number, color: String, strokeWidth: Number}
+			</td>
+		</tr>
+		<tr>
+			<td>clusterBorderColor</td>
+			<td>CSS color value</td>
+			<td>#00CCF3</td>
+			<td>Color used to draw the border of clusters.</td>
+		</tr>
+		<tr>
+			<td>clusterBorderColorSelected</td>
+			<td>CSS color value</td>
+			<td>#008199</td>
+			<td>Border color of selected clusters.</td>
+		</tr>
+		<tr>
+			<td>clusterBorderStrokeWidth</td>
+			<td>Number</td>
+			<td>3</td>
+			<td>Width in pixels of cluster borders.</td>
+		</tr>
+		<tr>
+			<td>clusterFillColor</td>
+			<td>CSS color value</td>
+			<td>#00CCF3</td>
+			<td>Color used to draw the fill area of clusters.</td>
+		</tr>
+		<tr>
+			<td>clusterFillColorSelected</td>
+			<td>CSS color value</td>
+			<td>#008199</td>
+			<td>Color used to draw the fill area of selected clusters.</td>
+		</tr>
+		<tr>
+			<td>clusterFillOpacity</td>
+			<td>Number</td>
+			<td>0.2</td>
+			<td>Opacity of the cluster fill color. Valid values range from 0 (fully transparent) to 1 (fully opaque).</td>
+		</tr>
+		<tr>
+			<td>clusterClickCallback</td>
+			<td>Function</td>
+			<td>$.noop</td>
+			<td>Function called when a cluster is clicked. The function receives a callback parameter called
+			cluster, which is a reference to the cluster that was clicked.</td>
+		</tr>
+		<tr>
+            <td>clusterMouseoutCallback</td>
+            <td>Function</td>
+            <td>$.noop</td>
+            <td>Function called when a user moves their mouse out of cluster. The function receives a callback
+            parameter called cluster, which is a reference to the cluster that was hovered over.</td>
         </tr>
-        <tr>
-        	<td>containerBorder</td>
-            	<td>CSS border property value</td>
-            	<td>solid 2px #EDEDED</td>
-            	<td>CSS border property to be applied to the fingerprint container DIV.</td>
-        </tr>
-    	<tr>
-        	<td>fingerprintSize</td>
-        	<td>Number</td>
-        	<td>none</td>
-        	<td>Dimension of the cortical.io Retina being used.</td>
-        </tr>
-        <tr>
-        	<td>gridColor</td>
-        	<td>CSS color value</td>
-            	<td>#EDEDED</td>
-            	<td>Color of the grid overlay rendered over the fingerprint (if enabled).</td>
-        </tr>
-        <tr>
-        	<td>gridEnabled</td>
-        	<td>Boolean</td>
-        	<td>true</td>
-        	<td>Flag indicating if the grid overlay should be rendered.</td>
-        </tr>
-        <tr>
-        	<td>mouseoverCallback</td>
-        	<td>function</td>
-        	<td>undefined</td>
-        	<td>Callback function to be called as the user moves their cursor over the fingerprint. The callback
-            receives a data parameter, containing the current x/y coordinates and Retina position of the
-            mouse pointer. This can be used to make additional API calls to further inspect particular positions of
-            the rendered fingerprint.</td>
-        </tr>
-        <tr>
-        	<td>positions</td>
-        	<td>Array</td>
-            <td>[]</td>
-            <td>Array of active bits in the fingerprint to render.</td>
-        </tr>
-        <tr>
-        	<td>scale</td>
-        	<td>Number</td>
-            <td>1</td>
-            <td>Factor to scale the size of the rendered fingerprint by. Values below 1 make the fingerprint
-            smaller; values above 1 increase its size.</td>
-        </tr>
-        <tr>
-        	<td>transparent</td>
-        	<td>Boolean</td>
-            <td>false</td>
-            <td>Flag indicating if inactive bits of the fingerprint should be transparent. This can be used to
-            layer multiple rendered fingerprints on top of each other to create complex displays of semantic
-            overlap.</td>
-        </tr>
+		<tr>
+			<td>clusterMouseoverCallback</td>
+			<td>Function</td>
+			<td>$.noop</td>
+			<td>Function called when a user moves their mouse over a cluster. The function receives a callback
+			parameter called cluster, which is a reference to the cluster that the cursor left.</td>
+		</tr>
+		<tr>
+			<td>containerBorder</td>
+			<td>CSS border property value</td>
+			<td>solid 2px #EDEDED</td>
+			<td>CSS border property to be applied to the fingerprint container DIV.</td>
+		</tr>
+		<tr>
+			<td>fingerprintSize</td>
+			<td>Number</td>
+			<td>none</td>
+			<td>Dimension of the cortical.io Retina being used.</td>
+		</tr>
+		<tr>
+			<td>gridColor</td>
+			<td>CSS color value</td>
+			<td>#EDEDED</td>
+			<td>Color of the grid overlay rendered over the fingerprint (if enabled).</td>
+		</tr>
+		<tr>
+			<td>gridEnabled</td>
+			<td>Boolean</td>
+			<td>true</td>
+			<td>Flag indicating if the grid overlay should be rendered.</td>
+		</tr>
+		<tr>
+			<td>mouseoverCallback</td>
+			<td>Function</td>
+			<td>$.noop</td>
+			<td>Callback function to be called as the user moves their cursor over the fingerprint. The callback
+			receives a data parameter, containing the current x/y coordinates and Retina position of the
+			mouse pointer. This can be used to make additional API calls to further inspect particular positions of
+			the rendered fingerprint.</td>
+		</tr>
+		<tr>
+			<td>positions</td>
+			<td>Array</td>
+			<td>[]</td>
+			<td>Array of active bits in the fingerprint to render.</td>
+		</tr>
+		<tr>
+			<td>scale</td>
+			<td>Number</td>
+			<td>1</td>
+			<td>Factor to scale the size of the rendered fingerprint by. Values below 1 make the fingerprint
+			smaller; values above 1 increase its size.</td>
+		</tr>
+		<tr>
+			<td>transparent</td>
+			<td>Boolean</td>
+			<td>false</td>
+			<td>Flag indicating if inactive bits of the fingerprint should be transparent. This can be used to
+			layer multiple rendered fingerprints on top of each other to create complex displays of semantic
+			overlap.</td>
+		</tr>
 
 	</tbody>
 </table>
@@ -118,7 +183,6 @@ simplify subsequent plugin calls. This can be done by extending the plugin's def
 
 ```javascript
 $.fn.fingerprintRenderer.defaults = $.extend({}, $.fn.fingerprintRenderer.defaults, {
-	containerBorder: "",
 	fingerprintSize: 128,
 	gridColor: "#fafafa",
 	gridEnabled: true,

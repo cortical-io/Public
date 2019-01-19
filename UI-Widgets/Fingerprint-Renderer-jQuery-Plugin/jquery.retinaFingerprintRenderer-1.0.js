@@ -27,13 +27,43 @@
          * Name of the CSS class applied to the fingerprint canvas
          * @type {string}
          */
-        var FINGERPRINT_CANVAS_CSS_CLASS = "fingerprint-canvas";
+        var FINGERPRINT_CANVAS_CSS_CLASS = "fingerprint";
 
         /**
          * Name of the CSS class applied to the grid canvas
          * @type {string}
          */
         var GRID_CANVAS_CSS_CLASS = "grid-canvas";
+
+        /**
+         * Name of the CSS class applied to the cluster container DIV
+         * @type {string}
+         */
+        var CLUSTER_CONTAINER_CSS_CLASS = "clusters";
+
+        /**
+         * Name of the CSS class applied to the cluster fill canvas
+         * @type {string}
+         */
+        var CLUSTER_FILL_CANVAS_CSS_CLASS = "cluster-fills";
+
+        /**
+         * Name of the CSS class applied to the cluster border canvas
+         * @type {string}
+         */
+        var CLUSTER_BORDER_CANVAS_CSS_CLASS = "cluster-borders";
+
+        /**
+         * Name of the CSS class applied to the cluster selection canvas
+         * @type {string}
+         */
+        var CLUSTER_SELECTION_CANVAS_CSS_CLASS = "cluster-selection";
+
+        /**
+         * Minimum scale factor required to render a grid
+         * @type {number}
+         */
+        var MIN_SCALE_FOR_GRID = 2;
 
         // Add all default options
         options = $.extend({}, $.fn.fingerprintRenderer.defaults, options);
@@ -46,7 +76,19 @@
         // Set internal variables with values of passed options object
         var backgroundColor = options.backgroundColor;
         var bitColor = options.bitColor;
+        var clusters = options.clusters;
+        var clusterBorderColor = options.clusterBorderColor;
+        var clusterBorderColorSelected = options.clusterBorderColorSelected;
+        var clusterBorderStrokeWidth = options.clusterBorderStrokeWidth;
+        var clusterFillColor = options.clusterFillColor;
+        var clusterFillColorSelected = options.clusterFillColorSelected;
+        var clusterFillOpacity = options.clusterFillOpacity;
+        var clusterClickCallback = options.clusterClickCallback;
+        var clusterMouseoverCallback = options.clusterMouseoverCallback;
+        var clusterMouseoutCallback = options.clusterMouseoutCallback;
         var containerBorder = options.containerBorder;
+        var fadeInTime = options.fadeInTime;
+        var fadeOutTime = options.fadeOutTime;
         var fingerprintSize = options.fingerprintSize;
         var gridColor = options.gridColor;
         var gridEnabled = options.gridEnabled;
@@ -55,8 +97,8 @@
         var scale = options.scale;
         var transparent = options.transparent;
 
-        // Reduce fingerprint sizes by 1 pixel if scaled above 1
-        var size = (fingerprintSize * scale) - ((scale > 1) ? 1 : 0);
+        // Set total size of fingerprint
+        var size = (fingerprintSize * scale);
 
         /**
          * Internal fingerprint representation
@@ -80,11 +122,31 @@
          * @param $containerElement
          */
         function createFingerprintRenderer($containerElement) {
-            // TODO check if already set up
-            setupDom($containerElement);
-            setupRenderer($containerElement);
-            if (gridEnabled) {
-                initializeGrid($containerElement);
+
+            // Check if DOM elements have already been set up
+            var fingerprintCanvas = $containerElement.find("." + FINGERPRINT_CANVAS_CSS_CLASS);
+            if (fingerprintCanvas.length == 0) {
+                setupDom($containerElement);
+            }
+
+            var render = function () {
+                setupRenderer($containerElement);
+                if (gridEnabled) {
+                    if (scale <= MIN_SCALE_FOR_GRID && console.log) {
+                        console.log("Grid cannot be drawn unless a scale factor larger than " + MIN_SCALE_FOR_GRID + " is used. Current scale factor is " + scale);
+                    } else {
+                        initializeGrid($containerElement);
+                    }
+                }
+                if (clusters.length > 0) {
+                    initializeClusterCanvases($containerElement);
+                }
+            };
+
+            if (fadeOutTime > 0 && fingerprintCanvas.length > 0) {
+                fingerprintCanvas.fadeOut(fadeOutTime, render);
+            } else {
+                render();
             }
         }
 
@@ -104,8 +166,15 @@
 
             // Create canvas elements
             $containerElement.append($('<canvas>', {class: FINGERPRINT_CANVAS_CSS_CLASS}));
-            if (gridEnabled) {
+            if (gridEnabled && scale > MIN_SCALE_FOR_GRID) {
                 $containerElement.append($('<canvas>', {class: GRID_CANVAS_CSS_CLASS}));
+            }
+            if (clusters.length > 0) {
+                var $clusterContainer = $('<div>', {class: CLUSTER_CONTAINER_CSS_CLASS});
+                $containerElement.append($clusterContainer);
+                $clusterContainer.append($('<canvas>', {class: CLUSTER_FILL_CANVAS_CSS_CLASS}));
+                $clusterContainer.append($('<canvas>', {class: CLUSTER_BORDER_CANVAS_CSS_CLASS}));
+                $clusterContainer.append($('<canvas>', {class: CLUSTER_SELECTION_CANVAS_CSS_CLASS}));
             }
 
             // Define class for container subelements
@@ -118,8 +187,9 @@
                 "display": "block"
             };
 
-            // Apply to container subelements
-            $.each($containerElement.children(), function (index, element) {
+            // Apply to all container subelements
+            var $subElements = $containerElement.find("div, canvas");
+            $.each($subElements, function (index, element) {
                 $(element).css(canvasClass);
             });
         }
@@ -129,12 +199,18 @@
          * @param $containerElement
          */
         function setupRenderer($containerElement) {
-            var stage = initializeCanvas($("." + FINGERPRINT_CANVAS_CSS_CLASS, $containerElement).get(0), points, fingerprint);
-            if (typeof mouseoverCallback != "undefined") {
+            var stage = initializeFingerprintCanvas($("." + FINGERPRINT_CANVAS_CSS_CLASS, $containerElement).get(0), points, fingerprint);
+            if (typeof mouseoverCallback != "undefined" && mouseoverCallback != $.noop) {
                 stage.addEventListener("stagemousemove", mouseMove);
             }
-            renderFingerprint(fingerprint, positions, bitColor);
+            renderFingerprint($containerElement, fingerprint, positions, bitColor);
             stage.update();
+        }
+
+        function initializeStageFromCanvas(canvasElement) {
+            canvasElement.setAttribute('width', size.toString());
+            canvasElement.setAttribute('height', size.toString());
+            return new createjs.Stage(canvasElement);
         }
 
         /**
@@ -143,34 +219,76 @@
          * @param points
          * @param shape
          */
-        function initializeCanvas(canvasElement, points, shape) {
-            canvasElement.setAttribute('width', size.toString());
-            canvasElement.setAttribute('height', size.toString());
-            var stage = new createjs.Stage(canvasElement);
+        function initializeFingerprintCanvas(canvasElement, points, shape) {
+            var stage = initializeStageFromCanvas(canvasElement);
             stage.addChild(shape);
 
             // Enable automatic rendering on every tick
             // TODO only necessary when drawing is enabled: createjs.Ticker.addEventListener("tick", stage);
-
-            // Initialize the points object used to contain the internal representation of displayed fingerprints
-            resetPoints(points);
-            for (var y = 0; y < fingerprintSize; y++) {
-                for (var x = 0; x < fingerprintSize; x++) {
-                    points[x][y] = 0;
-                }
-            }
 
             stage.cache(0, 0, size, size);
             return stage;
         }
 
         /**
+         * Initializes the grid canvas
+         * @param $containerElement
+         */
+        function initializeGrid($containerElement) {
+            var gridElement = $("." + GRID_CANVAS_CSS_CLASS, $containerElement).get(0);
+            var stage = initializeStageFromCanvas(gridElement);
+            var grid = new createjs.Shape();
+
+            // Draw all grid lines
+            for (var index = 1; index < fingerprintSize; index++) {
+                var coordinate = (index * scale);
+                grid.graphics.beginStroke(gridColor).moveTo(coordinate, 0).lineTo(coordinate, size).endStroke(); // Vertical
+                grid.graphics.beginStroke(gridColor).moveTo(0, coordinate).lineTo(size, coordinate).endStroke(); // Horizontal
+            }
+
+            stage.addChild(grid);
+            stage.update();
+        }
+
+        function initializeClusterCanvases($containerElement) {
+            var clusterFillElement = $("." + CLUSTER_FILL_CANVAS_CSS_CLASS, $containerElement);
+            clusterFillElement.css({"opacity": clusterFillOpacity});
+            var clusterFillStage = initializeStageFromCanvas(clusterFillElement.get(0));
+            clusterFillStage.enableMouseOver(20);
+
+            var clusterBorderElement = $("." + CLUSTER_BORDER_CANVAS_CSS_CLASS, $containerElement);
+            clusterBorderElement.css({"pointer-events": "none"});
+            var clusterBorderStage = initializeStageFromCanvas(clusterBorderElement.get(0));
+
+            var clusterSelectionElement = $("." + CLUSTER_SELECTION_CANVAS_CSS_CLASS, $containerElement);
+            clusterSelectionElement.css({"pointer-events": "none"});
+            var clusterSelectionStage = initializeStageFromCanvas(clusterSelectionElement.get(0));
+
+            // Sort by radius size to ensure large clusters are rendered first (so they do not cover smaller ones)
+            sortClusters(clusters, "radius", false);
+
+            // Render all clusters
+            $.each(clusters, function (index, cluster) {
+                renderCluster(clusterFillStage, clusterBorderStage, clusterSelectionStage, cluster)
+            });
+            clusterFillStage.update();
+            clusterBorderStage.update();
+        }
+
+        /**
          * Renders a fingerprint to the canvas from a positions array
+         * @param $containerElement
          * @param fingerprint
          * @param positions
          * @param color
          */
-        function renderFingerprint(fingerprint, positions, color) {
+        function renderFingerprint($containerElement, fingerprint, positions, color) {
+
+            // Check if the fingerprint should be faded in
+            var fingerprintCanvas = $containerElement.find("." + FINGERPRINT_CANVAS_CSS_CLASS);
+            if (fadeInTime > 0) {
+                fingerprintCanvas.css({"display": "none"});
+            }
 
             resetPoints(points);
 
@@ -187,37 +305,86 @@
 
             $.each(positions, function (index, entry) {
                 var coordinates = getCoordinateFromPosition(entry);
-                fingerprint.graphics.beginFill(color).drawRect(coordinates.x * scale, coordinates.y * scale, Math.max((scale - 1), 1), Math.max((scale - 1), 1));
+                fingerprint.graphics.beginFill(color).drawRect(coordinates.x * scale, coordinates.y * scale, scale, scale);
                 points[coordinates.x][coordinates.y] = 1;
             });
 
             fingerprint.parent.updateCache('source-overlay');
             fingerprint.graphics.clear();
+
+            fingerprintCanvas.fadeIn(fadeInTime);
         }
 
         /**
-         * Initializes the grid canvas
+         * Renders a given cluster to the corresponding stages
+         * @param clusterFillStage
+         * @param clusterBorderStage
+         * @param clusterSelectionStage
+         * @param cluster
          */
-        function initializeGrid($containerElement) {
-            var gridElement = $("." + GRID_CANVAS_CSS_CLASS, $containerElement).get(0);
-            gridElement.setAttribute('width', (size).toString());
-            gridElement.setAttribute('height', (size).toString());
-            var stage = new createjs.Stage(gridElement);
-            var grid = new createjs.Shape();
+        function renderCluster(clusterFillStage, clusterBorderStage, clusterSelectionStage, cluster) {
 
-            // Draw all grid lines
-            for (var index = 1; index < fingerprintSize; index++) {
-                var coordinate = (index * scale);
+            var clusterParameters = jQuery.extend(true, {}, cluster);
 
-                // Vertical
-                grid.graphics.beginStroke(gridColor).moveTo(coordinate, 0).lineTo(coordinate, size).endStroke();
-
-                // Horizontal
-                grid.graphics.beginStroke(gridColor).moveTo(0, coordinate).lineTo(size, coordinate).endStroke();
+            // Check for cluster objects in the form returned by the cortical.io API
+            if (typeof clusterParameters.pair != "undefined") {
+                clusterParameters.x = clusterParameters.pair.first;
+                clusterParameters.y = clusterParameters.pair.second;
             }
 
-            stage.addChild(grid);
-            stage.update();
+            var clusterBorder = new createjs.Shape();
+            clusterBorder.graphics.setStrokeStyle(clusterBorderStrokeWidth).beginStroke(clusterBorderColor).drawCircle(0, 0, clusterParameters.radius * scale);
+            clusterBorder.x = clusterParameters.x * scale;
+            clusterBorder.y = clusterParameters.y * scale;
+            clusterBorderStage.addChild(clusterBorder);
+
+            var clusterFill = new createjs.Shape();
+            clusterFill.graphics.beginFill(clusterFillColor).drawCircle(0, 0, clusterParameters.radius * scale);
+            clusterFill.x = clusterParameters.x * scale;
+            clusterFill.y = clusterParameters.y * scale;
+            clusterFillStage.addChild(clusterFill);
+
+            var renderSelectedCluster = function (cluster) {
+                clusterSelectionStage.removeAllChildren();
+
+                var clusterBorder = new createjs.Shape();
+                clusterBorder.graphics.setStrokeStyle(clusterBorderStrokeWidth).beginStroke(clusterBorderColorSelected).drawCircle(0, 0, clusterParameters.radius * scale);
+                clusterBorder.x = clusterParameters.x * scale;
+                clusterBorder.y = clusterParameters.y * scale;
+                clusterSelectionStage.addChild(clusterBorder);
+
+                var clusterFill = new createjs.Shape();
+                clusterFill.graphics.beginFill(clusterFillColorSelected).drawCircle(0, 0, clusterParameters.radius * scale);
+                clusterFill.x = clusterParameters.x * scale;
+                clusterFill.y = clusterParameters.y * scale;
+                clusterFill.alpha = clusterFillOpacity;
+                clusterSelectionStage.addChild(clusterFill);
+
+                clusterSelectionStage.update();
+            };
+
+            var clusterListener = function () {
+                if (cluster.selected) {
+                    renderSelectedCluster(this);
+                } else {
+                    clusterSelectionStage.removeAllChildren();
+                    clusterSelectionStage.update();
+                }
+            };
+
+            // Add listeners
+            clusterFill.on("click", function (evt) {
+                clusterClickCallback(cluster);
+                clusterListener();
+            });
+            clusterFill.on("mouseover", function (evt) {
+                clusterMouseoverCallback(cluster);
+                clusterListener();
+            });
+            clusterFill.on("mouseout", function (evt) {
+                clusterMouseoutCallback(cluster);
+                clusterListener();
+            });
         }
 
         /**
@@ -259,10 +426,18 @@
         function mouseMove(event) {
             var coordinates = getCoordinatesFromMouseEvent(event);
             if (lastCoordinates.x != coordinates.x || lastCoordinates.y != coordinates.y) {
-                var position = (coordinates.y * size) + coordinates.x;
+                lastCoordinates.x = coordinates.x;
+                lastCoordinates.y = coordinates.y;
+                var position = parseInt((coordinates.y * size / scale) + coordinates.x);
                 var data = {x: coordinates.x, y: coordinates.y, position: position};
                 mouseoverCallback(data);
             }
+        }
+
+        function sortClusters(clusters, criteria, ascending) {
+            clusters.sort(function (a, b) {
+                return (ascending ? a[criteria] - b[criteria] : b[criteria] - a[criteria]);
+            });
         }
 
         return this.each(function () {
@@ -279,12 +454,24 @@
      */
     $.fn.fingerprintRenderer.defaults = {
         backgroundColor: "#FFFFFF",
-        bitColor: "#005570",
+        bitColor: "#333333",
+        clusters: [],
+        clusterBorderColor: "#00CCF3",
+        clusterBorderColorSelected: "#008199",
+        clusterBorderStrokeWidth: 3,
+        clusterFillColor: "#00CCF3",
+        clusterFillColorSelected: "#008199",
+        clusterFillOpacity: 0.2,
+        clusterClickCallback: $.noop,
+        clusterMouseoverCallback: $.noop,
+        clusterMouseoutCallback: $.noop,
         containerBorder: "solid 2px #EDEDED",
+        fadeInTime: 0,
+        fadeOutTime: 0,
         fingerprintSize: undefined,
         gridColor: "#EDEDED",
         gridEnabled: true,
-        mouseoverCallback: undefined,
+        mouseoverCallback: $.noop,
         positions: [],
         scale: 1,
         transparent: false

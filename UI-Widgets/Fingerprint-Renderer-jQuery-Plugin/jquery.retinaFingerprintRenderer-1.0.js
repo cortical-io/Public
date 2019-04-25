@@ -259,7 +259,7 @@
         function mouseMove(event) {
             var coordinates = getCoordinatesFromMouseEvent(event);
             if (lastCoordinates.x != coordinates.x || lastCoordinates.y != coordinates.y) {
-                var position = (coordinates.y * size) + coordinates.x;
+                var position = (coordinates.y * fingerprintSize) + coordinates.x;
                 var data = {x: coordinates.x, y: coordinates.y, position: position};
                 mouseoverCallback(data);
             }

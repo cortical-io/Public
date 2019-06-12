@@ -87,6 +87,12 @@ available options are:
             the rendered fingerprint.</td>
         </tr>
         <tr>
+          <td>pixelSize</td>
+          <td>Numer</td>
+            <td>1</td>
+            <td>Number of fingerprint positions a rendered pixel represents.</td>
+        </tr>
+        <tr>
         	<td>positions</td>
         	<td>Array</td>
             <td>[]</td>

@@ -51,9 +51,15 @@
         var gridColor = options.gridColor;
         var gridEnabled = options.gridEnabled;
         var mouseoverCallback = options.mouseoverCallback;
+        var pixelSize = options.pixelSize;
         var positions = options.positions;
         var scale = options.scale;
         var transparent = options.transparent;
+
+        // Scale fingerprint size by pixel factor
+        if (pixelSize > 1) {
+          fingerprintSize = fingerprintSize / pixelSize;
+        }
 
         // Reduce fingerprint sizes by 1 pixel if scaled above 1
         var size = (fingerprintSize * scale) - ((scale > 1) ? 1 : 0);
@@ -172,9 +178,8 @@
          */
         function renderFingerprint(fingerprint, positions, color) {
 
+            // Clear any previous fingerprint
             resetPoints(points);
-
-            // Clear the fingerprint
             fingerprint.graphics.clear();
 
             // Fill in a background color if configured, or clear the cache if the background should be transparent
@@ -185,11 +190,55 @@
                 fingerprint.parent.cache(0, 0, size, size);
             }
 
-            $.each(positions, function (index, entry) {
-                var coordinates = getCoordinateFromPosition(entry);
-                fingerprint.graphics.beginFill(color).drawRect(coordinates.x * scale, coordinates.y * scale, Math.max((scale - 1), 1), Math.max((scale - 1), 1));
-                points[coordinates.x][coordinates.y] = 1;
-            });
+            if (pixelSize > 1) {
+
+              var scaledPositions = []
+
+              for (var yIndex = 0; yIndex < (fingerprintSize * pixelSize); yIndex += pixelSize) {
+                for (var xIndex = 0; xIndex < (fingerprintSize * pixelSize); xIndex += pixelSize) {
+
+                  var weight = 0;
+                  for (var xOffset = 0; xOffset < pixelSize; xOffset++) {
+                    for (var yOffset = 0; yOffset < pixelSize; yOffset++) {
+                      var currentPosition = xIndex + ((yIndex + yOffset) * fingerprintSize * pixelSize) + xOffset
+                      if (positions.includes(currentPosition)) {
+                        weight += (1 / pixelSize);
+                      }
+                    }
+                  }
+
+                  if (weight > 0) {
+                    var pixelatedX = xIndex / pixelSize
+                    var pixelatedY = yIndex / pixelSize
+                    scaledPositions.push({x: pixelatedX, y: pixelatedY, weight: weight})
+                  }
+                }
+              }
+
+              $.each(scaledPositions, function (index, entry) {
+                 var startX = entry.x * scale;
+                 var startY = entry.y * scale;
+                 var width = Math.max((scale - 1), 1);
+                 var height = Math.max((scale - 1), 1);
+                 var rgb = hexToRgb(color)
+                 var rgba = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + entry.weight + ")"
+                 fingerprint.graphics.beginFill(rgba).drawRect(startX, startY, width, height);
+                 points[entry.x][entry.y] = entry.weight;
+              });
+
+            } else {
+
+              $.each(positions, function (index, entry) {
+                  var coordinates = getCoordinateFromPosition(entry);
+                  var startX = coordinates.x * scale;
+                  var startY = coordinates.y * scale;
+                  var width = Math.max((scale - 1), 1);
+                  var height = Math.max((scale - 1), 1);
+                  fingerprint.graphics.beginFill(color).drawRect(startX, startY, width, height);
+                  points[coordinates.x][coordinates.y] = 1;
+              });
+
+            }
 
             fingerprint.parent.updateCache('source-overlay');
             fingerprint.graphics.clear();
@@ -218,6 +267,18 @@
 
             stage.addChild(grid);
             stage.update();
+        }
+
+        /**
+         * TODO:
+         */
+        function hexToRgb(hex) {
+          var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+          return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+          } : null;
         }
 
         /**
@@ -285,6 +346,7 @@
         gridColor: "#EDEDED",
         gridEnabled: true,
         mouseoverCallback: undefined,
+        pixelSize: 1,
         positions: [],
         scale: 1,
         transparent: false

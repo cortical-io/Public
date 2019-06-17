@@ -52,6 +52,7 @@
         var gridEnabled = options.gridEnabled;
         var mouseoverCallback = options.mouseoverCallback;
         var pixelSize = options.pixelSize;
+        var playAnimation = options.animate;
         var positions = options.positions;
         var scale = options.scale;
         var transparent = options.transparent;
@@ -86,7 +87,6 @@
          * @param $containerElement
          */
         function createFingerprintRenderer($containerElement) {
-            // TODO check if already set up
             setupDom($containerElement);
             setupRenderer($containerElement);
             if (gridEnabled) {
@@ -139,7 +139,11 @@
             if (typeof mouseoverCallback != "undefined") {
                 stage.addEventListener("stagemousemove", mouseMove);
             }
-            renderFingerprint(fingerprint, positions, bitColor);
+            if (playAnimation) {
+              animate(fingerprint, bitColor);
+            } else {
+              renderFingerprint(fingerprint, positions, bitColor);
+            }
             stage.update();
         }
 
@@ -155,9 +159,6 @@
             var stage = new createjs.Stage(canvasElement);
             stage.addChild(shape);
 
-            // Enable automatic rendering on every tick
-            // TODO only necessary when drawing is enabled: createjs.Ticker.addEventListener("tick", stage);
-
             // Initialize the points object used to contain the internal representation of displayed fingerprints
             resetPoints(points);
             for (var y = 0; y < fingerprintSize; y++) {
@@ -168,6 +169,44 @@
 
             stage.cache(0, 0, size, size);
             return stage;
+        }
+
+        /**
+         * Generates a random (evenly-distributed) fingerprint.
+         */
+        function getRandomFp() {
+          var max = (fingerprintSize * pixelSize) * (fingerprintSize * pixelSize)
+          var numPositions = max * 0.01
+          var positions = []
+          for (var i = 0; i < numPositions; i++) {
+            var randomPosition = getRandomPosition(0, max);
+            positions.push(parseInt(randomPosition))
+          }
+          console.log(positions)
+          return positions;
+        }
+
+        /**
+         * Returns a random number in the given range.
+         */
+        function getRandomPosition(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        /**
+         * Fades an element in or out (depending on its current opacity).
+         */
+        function fade(element) {
+          $(element).delay(200).animate({ opacity: 'toggle' }, 200, function() { fade(element); });
+        }
+
+        /**
+         * Animates the fingerprint by fading it in and out.
+         */
+        function animate(fingerprint, bitColor) {
+          var positions = getRandomFp();
+          renderFingerprint(fingerprint, positions, bitColor);
+          fade($(".fingerprint-canvas")[0]);
         }
 
         /**
@@ -269,6 +308,8 @@
             stage.update();
         }
 
+
+
         /**
          * TODO:
          */
@@ -339,6 +380,7 @@
      * Collection of default plugin options
      */
     $.fn.fingerprintRenderer.defaults = {
+        animate: false,
         backgroundColor: "#FFFFFF",
         bitColor: "#005570",
         containerBorder: "solid 2px #EDEDED",

@@ -1,0 +1,89 @@
+{
+  "heading": "<h1>Variations of prompts trying to better describe context hierarchy and JSON structure to the LLM.</h1>",
+  "description": "<b><a href=\"https://github.com/ollama/ollama/releases/tag/v0.4.3\" target=\"_blank\">Updated mistral-large</a> and new tulu models with <a href=\"https://github.com/ollama/ollama/releases/tag/v0.4.4\" target=\"_blank\">ollama:0.4.4</a></b>.<br><br>Prompt variations <b>a</b> are using word \"array\" to describe JSON structure.<br>Prompt variations <b>l</b> are using word \"list\" to describe JSON structure.<br>Prompt variations <b>c</b> are using word \"list\" to describe JSON structure and word \"comprehensive\" instead specifying exact number of items for higher contexts and context terms.<br><br>Tests were run on Kubernetes with 2x NVIDIA Quadro RTX 8000 (48GB RAM) GPU cards using <a href=\"https://github.com/ollama/ollama/releases/tag/v0.4.4\" target=\"_blank\">ollama:0.4.4</a> container in November 2024.<br><br>",
+  "prompts": [
+    {
+      "a1":[
+        "{\"model\": \"",
+        "\", \"temperature\": 0.0, \"response_format\": {\"type\": \"json_object\"}, \"messages\": [{\"role\": \"system\", \"content\": \"User provides hierarchical context and term. User is interested in term definition in scope of depest level of context. Respond by filling in json structure {\\\"d\\\":[],\\\"hc\\\":[],\\\"ct\\\":[]} that contains term definition (d) as array of exactly 8 sub arrays. Each sub array contains 5 strings. Each string is one sentence from term definition. Add array of exactly 10 typical higher level contexts (hc) of term. Add array of exactly 30 highly specific context terms (ct) of term.\"}, {\"role\": \"user\", \"content\": \"Term: \\\"",
+        "\\\"\\nContext: \\\"",
+        "\\\"\"}]}"
+      ]
+    },
+    {
+      "a2":[
+        "{\"model\": \"",
+        "\", \"temperature\": 0.0, \"response_format\": {\"type\": \"json_object\"}, \"messages\": [{\"role\": \"system\", \"content\": \"User provides hierarchical context and term. User is interested in term definition in scope of depest level of context. Definition is 8 paragraphs of 5 sentences each. Respond by filling in json structure {\\\"d\\\":[],\\\"hc\\\":[],\\\"ct\\\":[]} that contains term definition (d) as array of exactly 8 sub arrays. Each sub array contains 5 strings. Each string is one sentence from term definition. Add array of exactly 10 typical higher level contexts (hc) of term. Add array of exactly 30 highly specific context terms (ct) of term.\"}, {\"role\": \"user\", \"content\": \"Term: \\\"",
+        "\\\"\\nContext: \\\"",
+        "\\\"\"}]}"
+      ]
+    },
+    {
+      "a3":[
+        "{\"model\": \"",
+        "\", \"temperature\": 0.0, \"response_format\": {\"type\": \"json_object\"}, \"messages\": [{\"role\": \"system\", \"content\": \"User provides hierarchical context and term. User is interested in term definition in scope of depest level of context. Definition is 8 paragraphs of 5 sentences each. Respond by filling in json structure {\\\"d\\\":[[],[],[],[],[],[],[],[]],\\\"hc\\\":[],\\\"ct\\\":[]} that contains term definition (d) as array of exactly 8 sub arrays. Each sub array contains 5 strings. Each string is one sentence from term definition. Add array of exactly 10 typical higher level contexts (hc) of term. Add array of exactly 30 highly specific context terms (ct) of term.\"}, {\"role\": \"user\", \"content\": \"Term: \\\"",
+        "\\\"\\nContext: \\\"",
+        "\\\"\"}]}"
+      ]
+    },
+    {
+      "l1":[
+        "{\"model\": \"",
+        "\", \"temperature\": 0.0, \"response_format\": {\"type\": \"json_object\"}, \"messages\": [{\"role\": \"system\", \"content\": \"User provides hierarchical context and term. User is interested in term definition in scope of depest level of context. Respond by filling in json structure {\\\"d\\\":[],\\\"hc\\\":[],\\\"ct\\\":[]} that contains term definition (d) as list of exactly 8 sublists. Each sublist contains 5 strings. Each string is one sentence from term definition. Add list of exactly 10 typical higher level contexts (hc) of term. Add list of exactly 30 highly specific context terms (ct) of term.\"}, {\"role\": \"user\", \"content\": \"Term: \\\"",
+        "\\\"\\nContext: \\\"",
+        "\\\"\"}]}"
+      ]
+    },
+    {
+      "l2":[
+        "{\"model\": \"",
+        "\", \"temperature\": 0.0, \"response_format\": {\"type\": \"json_object\"}, \"messages\": [{\"role\": \"system\", \"content\": \"User provides hierarchical context and term. User is interested in term definition in scope of depest level of context. Definition is 8 paragraphs of 5 sentences each. Respond by filling in json structure {\\\"d\\\":[],\\\"hc\\\":[],\\\"ct\\\":[]} that contains term definition (d) as list of exactly 8 sublists. Each sublist contains 5 strings. Each string is one sentence from term definition. Add list of exactly 10 typical higher level contexts (hc) of term. Add list of exactly 30 highly specific context terms (ct) of term.\"}, {\"role\": \"user\", \"content\": \"Term: \\\"",
+        "\\\"\\nContext: \\\"",
+        "\\\"\"}]}"
+      ]
+    },
+    {
+      "l3":[
+        "{\"model\": \"",
+        "\", \"temperature\": 0.0, \"response_format\": {\"type\": \"json_object\"}, \"messages\": [{\"role\": \"system\", \"content\": \"User provides hierarchical context and term. User is interested in term definition in scope of depest level of context. Definition is 8 paragraphs of 5 sentences each. Respond by filling in json structure {\\\"d\\\":[[],[],[],[],[],[],[],[]],\\\"hc\\\":[],\\\"ct\\\":[]} that contains term definition (d) as list of exactly 8 sublists. Each sublist contains 5 strings. Each string is one sentence from term definition. Add list of exactly 10 typical higher level contexts (hc) of term. Add list of exactly 30 highly specific context terms (ct) of term.\"}, {\"role\": \"user\", \"content\": \"Term: \\\"",
+        "\\\"\\nContext: \\\"",
+        "\\\"\"}]}"
+      ]
+    },
+    {
+      "c1":[
+        "{\"model\": \"",
+        "\", \"temperature\": 0.0, \"response_format\": {\"type\": \"json_object\"}, \"messages\": [{\"role\": \"system\", \"content\": \"User provides hierarchical context and term. User is interested in term definition in scope of depest level of context. Respond by filling in json structure {\\\"d\\\":[],\\\"hc\\\":[],\\\"ct\\\":[]} that contains term definition (d) as list of exactly 8 sublists. Each sublist contains 5 strings. Each string is one sentence from term definition. Add list of exactly 10 typical higher level contexts (hc) of term. Add comprehensive list of typical higher level contexts (hc) of term. Add comprehensive list of highly specific context terms (ct) of term.\"}, {\"role\": \"user\", \"content\": \"Term: \\\"",
+        "\\\"\\nContext: \\\"",
+        "\\\"\"}]}"
+      ]
+    },
+    {
+      "c2":[
+        "{\"model\": \"",
+        "\", \"temperature\": 0.0, \"response_format\": {\"type\": \"json_object\"}, \"messages\": [{\"role\": \"system\", \"content\": \"User provides hierarchical context and term. User is interested in term definition in scope of depest level of context. Definition is 8 paragraphs of 5 sentences each. Respond by filling in json structure {\\\"d\\\":[],\\\"hc\\\":[],\\\"ct\\\":[]} that contains term definition (d) as list of exactly 8 sublists. Each sublist contains 5 strings. Each string is one sentence from term definition. Add comprehensive list of typical higher level contexts (hc) of term. Add comprehensive list of highly specific context terms (ct) of term.\"}, {\"role\": \"user\", \"content\": \"Term: \\\"",
+        "\\\"\\nContext: \\\"",
+        "\\\"\"}]}"
+      ]
+    },
+    {
+      "c3":[
+        "{\"model\": \"",
+        "\", \"temperature\": 0.0, \"response_format\": {\"type\": \"json_object\"}, \"messages\": [{\"role\": \"system\", \"content\": \"User provides hierarchical context and term. User is interested in term definition in scope of depest level of context. Definition is 8 paragraphs of 5 sentences each. Respond by filling in json structure {\\\"d\\\":[[],[],[],[],[],[],[],[]],\\\"hc\\\":[],\\\"ct\\\":[]} that contains term definition (d) as list of exactly 8 sublists. Each sublist contains 5 strings. Each string is one sentence from term definition. Add comprehensive list of typical higher level contexts (hc) of term. Add comprehensive list of highly specific context terms (ct) of term.\"}, {\"role\": \"user\", \"content\": \"Term: \\\"",
+        "\\\"\\nContext: \\\"",
+        "\\\"\"}]}"
+      ]
+    }
+  ],
+  "models": [
+    "mistral-large:123b",
+    "tulu3:8b",
+    "tulu3:70b"
+  ],
+  "terms": [
+    {"0": {"t":"soap","c":["technology", "production process"]}},
+    {"1": {"t":"soap","c":["technology", "information technology", "protocols"]}},
+    {"2": {"t":"soap","c":["human", "body", "hygiene"]}},
+    {"3": {"t":"soap","c":["materials", "fabrics", "washing"]}}
+  ]
+}

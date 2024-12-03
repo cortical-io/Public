@@ -1,0 +1,54 @@
+{
+    "prompts": [
+    {
+      "a":[
+        "{\"model\": \"",
+        "\", \"temperature\": 0.0, \"response_format\": {\"type\": \"json_object\"}, \"messages\": [{\"role\": \"system\", \"content\": \"Fill in json structure {\\\"d\\\":[[],[],[],[],[],[],[],[]],\\\"hc\\\":[],\\\"ct\\\":[]} that contains term definition (d) in its context as array of exactly 8 paragraphs. Each paragraph is array of exactly 5 elements. Each element contains exactly one sentence. Add array of exactly 10 typical higher level contexts (hc) of term. Add array of exactly 30 highly specific context terms (ct) of term.\"}, {\"role\": \"user\", \"content\": \"Term: \\\"",
+        "\\\"\\nContext: \\\"",
+        "\\\"\"}]}"
+      ]
+    },
+    {
+      "b":[
+        "{\"model\": \"",
+        "\", \"temperature\": 0.0, \"response_format\": {\"type\": \"json_object\"}, \"messages\": [{\"role\": \"system\", \"content\": \"Fill in json structure {\\\"d\\\":[[],[],[],[],[],[],[],[]],\\\"hc\\\":[],\\\"ct\\\":[]} that contains term definition (d) in its context as array of exactly 8 paragraphs. Each paragraph is array of 5 elements each containing exactly one sentence. Add array of exactly 10 typical higher level contexts (hc) of term. Add array of exactly 30 highly specific context terms (ct) of term.\"}, {\"role\": \"user\", \"content\": \"Term: \\\"",
+        "\\\"\\nContext: \\\"",
+        "\\\"\"}]}"
+      ]
+    }
+  ],
+  "models": [
+    "aya:8b",
+    "aya:35b",
+    "command-r:35b",
+    "deepseek-v2:16b",
+    "glm4:9b",
+    "hermes3:8b",
+    "hermes3:70b",
+    "llama3.1:8b",
+    "llama3.1:70b",
+    "llama3.2:3b",
+    "llama3.2-vision:11b",
+    "llama3.2-vision:90b",
+    "mistral-large:123b",
+    "mistral-nemo:12b",
+    "mistral-small:22b",
+    "mixtral:8x7b",
+    "mixtral:8x22b",
+    "nemotron:70b",
+    "phi3:14b",
+    "qwen2.5:7b",
+    "qwen2.5:14b",
+    "qwen2.5:32b",
+    "qwen2.5:72b",
+    "solar:10.7b",
+    "solar-pro:22b",
+    "stablelm2:12b"
+  ],
+  "terms": [
+    {"0": {"t":"conflict","c":["world", "countries", "political regimes"]}},
+    {"1": {"t":"conflict","c":["business", "companies", "competition"]}},
+    {"2": {"t":"organ","c":["human", "body"]}},
+    {"3": {"t":"organ","c":["world", "countries", "cities", "governance"]}}
+  ]
+}
